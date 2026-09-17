@@ -1,1 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop Pro</title>
 
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f5f6f8;
+      color: #222;
+    }
+
+    header {
+      background: #111827;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 14px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 13px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #111827;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    #qrSection,
+    #productSection {
+      display: none;
+    }
+
+    .product {
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .product img {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Shop Pro</h1>
+  <p>Store Management</p>
+</header>
+
+<div class="container">
+
+  <!-- STORE CREATION -->
+  <div class="card" id="storeSection">
+    <h2>Create Your Store</h2>
+
+    <input id="storeName" type="text" placeholder="Store name">
+    <input id="phone" type="tel" placeholder="Phone number">
+    <input id="facebook" type="text" placeholder="Facebook account">
+    <input id="instagram" type="text" placeholder="Instagram account">
+    <input id="tiktok" type="text" placeholder="TikTok account">
+
+    <button onclick="createStore()">Create Store</button>
+  </div>
+
+  <!-- QR CODE -->
+  <div class="card" id="qrSection">
+    <h2>Your Store QR Code</h2>
+
+    <div id="qrcode"></div>
+
+    <button onclick="downloadQR()">Download QR</button>
+    <button class="secondary" onclick="showProducts()">
+      Manage Products
+    </button>
+  </div>
+
+  <!-- PRODUCTS -->
+  <div class="card" id="productSection">
+    <h2>Products</h2>
+
+    <input id="productName" type="text" placeholder="Product name">
+    <input id="productPrice" type="number" placeholder="Price">
+    <input id="barcode" type="text" placeholder="Barcode">
+
+    <input id="productImage" type="file" accept="image/*">
+
+    <button onclick="addProduct()">Save Product</button>
+
+    <hr>
+
+    <div id="products"></div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+<script>
+
+let products = [];
+
+function createStore() {
+
+  const storeName = document.getElementById("storeName").value;
+  const phone = document.getElementById("phone").value;
+
+  if (!storeName || !phone) {
+    alert("Please enter store name and phone number.");
+    return;
+  }
+
+  const storeData = {
+    name: storeName,
+    phone: phone,
+    facebook: document.getElementById("facebook").value,
+    instagram: document.getElementById("instagram").value,
+    tiktok: document.getElementById("tiktok").value
+  };
+
+  localStorage.setItem("shopProStore", JSON.stringify(storeData));
+
+  document.getElementById("storeSection").style.display = "none";
+  document.getElementById("qrSection").style.display = "block";
+
+  generateQR();
+}
+
+function generateQR() {
+
+  const qr = document.getElementById("qrcode");
+
+  qr.innerHTML = "";
+
+  new QRCode(qr, {
+    text: window.location.href,
+    width: 220,
+    height: 220
+  });
+}
+
+function downloadQR() {
+
+  const canvas = document.querySelector("#qrcode canvas");
+
+  if (!canvas) return;
+
+  const link = document.createElement("a");
+
+  link.download = "shop-pro-qr.png";
+  link.href = canvas.toDataURL("image/png");
+
+  link.click();
+}
+
+function showProducts() {
+
+  document.getElementById("productSection").style.display = "block";
+
+  loadProducts();
+}
+
+function addProduct() {
+
+  const name = document.getElementById("productName").value;
+  const price = document.getElementById("productPrice").value;
+  const barcode = document.getElementById("barcode").value;
+  const imageInput = document.getElementById("productImage");
+
+  if (!name || !price || !barcode) {
+    alert("Please complete product information.");
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+
+    const product = {
+      name: name,
+      price: price,
+      barcode: barcode,
+      image: e.target.result
+    };
+
+    products.push(product);
+
+    products.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+
+    localStorage.setItem(
+      "shopProProducts",
+      JSON.stringify(products)
+    );
+
+    loadProducts();
+
+    document.getElementById("productName").value = "";
+    document.getElementById("productPrice").value = "";
+    document.getElementById("barcode").value = "";
+    document.getElementById("productImage").value = "";
+  };
+
+  if (imageInput.files[0]) {
+    reader.readAsDataURL(imageInput.files[0]);
+  } else {
+    const product = {
+      name: name,
+      price: price,
+      barcode: barcode,
+      image: ""
+    };
+
+    products.push(product);
+
+    products.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+
+    localStorage.setItem(
+      "shopProProducts",
+      JSON.stringify(products)
+    );
+
+    loadProducts();
+  }
+}
+
+function loadProducts() {
+
+  const saved = localStorage.getItem("shopProProducts");
+
+  if (saved) {
+    products = JSON.parse(saved);
+  }
+
+  const container = document.getElementById("products");
+
+  container.innerHTML = "";
+
+  products.forEach(product => {
+
+    const div = document.createElement("div");
+
+    div.className = "product";
+
+    div.innerHTML = `
+      ${product.image ? `<img src="${product.image}">` : ""}
+      <h3>${product.name}</h3>
+      <p>Price: ${product.price}</p>
+      <p>Barcode: ${product.barcode}</p>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+</script>
+
+</body>
+</html>
