@@ -1031,71 +1031,54 @@ function removeProductPhoto(){
 
 async function startBarcodeScanner(){
 
-  const video =
-    document.getElementById("barcodeVideo");
+  const video = document.getElementById("barcodeVideo");
 
   video.style.display = "block";
 
   document.getElementById("stopBarcode")
     .classList.remove("hidden");
 
-  try{
+  try {
 
-    barcodeReader =
-      new ZXingBrowser.BrowserMultiFormatReader();
+    barcodeReader = new ZXingBrowser.BrowserMultiFormatReader();
 
-    const devices =
-      await ZXingBrowser.BrowserCodeReader
-        .listVideoInputDevices();
-
-    if(!devices.length){
-      throw new Error("NO_CAMERA");
-    }
-
-    const backCamera =
-      devices.find(device =>
-        /back|rear|environment|arrière/i
-          .test(device.label)
-      ) || devices[devices.length - 1];
-
-    await barcodeReader.decodeFromVideoDevice(
-      backCamera.deviceId,
+    await barcodeReader.decodeFromConstraints(
+      {
+        video: {
+          facingMode: {
+            ideal: "environment"
+          }
+        }
+      },
       video,
       function(result){
 
-        if(result){
+        if (result) {
 
-          const code =
-            result.getText();
+          const code = result.getText();
 
-          document.getElementById(
-            "productBarcode"
-          ).value = code;
+          if (code) {
 
-          document.getElementById(
-            "removeBarcode"
-          ).style.display = "block";
+            document.getElementById("productBarcode").value = code;
 
-          stopBarcodeScanner();
+            document.getElementById("removeBarcode")
+              .style.display = "block";
 
+            stopBarcodeScanner();
+          }
         }
-
       }
     );
 
-  }catch(error){
+  } catch(error) {
 
-    console.error(
-      "Barcode scanner error:",
-      error
-    );
+    console.error("Barcode scanner error:", error);
 
     stopBarcodeScanner();
 
     alert(
       "Impossible d'ouvrir la caméra. Vérifiez l'accès à la caméra."
     );
-
   }
 }
 
