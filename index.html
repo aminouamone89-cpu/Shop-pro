@@ -1032,34 +1032,35 @@ function removeProductPhoto(){
 async function startBarcodeScanner(){
 
   const video =
-    document.getElementById(
-      "barcodeVideo"
-    );
+    document.getElementById("barcodeVideo");
 
+  video.style.display = "block";
 
-  video.style.display =
-    "block";
-
-
-  document.getElementById(
-    "stopBarcode"
-  ).classList.remove(
-    "hidden"
-  );
-
+  document.getElementById("stopBarcode")
+    .classList.remove("hidden");
 
   try{
 
     barcodeReader =
       new ZXingBrowser.BrowserMultiFormatReader();
 
+    const devices =
+      await ZXingBrowser.BrowserCodeReader
+        .listVideoInputDevices();
+
+    if(!devices.length){
+      throw new Error("NO_CAMERA");
+    }
+
+    const backCamera =
+      devices.find(device =>
+        /back|rear|environment|arrière/i
+          .test(device.label)
+      ) || devices[devices.length - 1];
 
     await barcodeReader.decodeFromVideoDevice(
-
-      undefined,
-
+      backCamera.deviceId,
       video,
-
       function(result){
 
         if(result){
@@ -1067,33 +1068,32 @@ async function startBarcodeScanner(){
           const code =
             result.getText();
 
-
           document.getElementById(
             "productBarcode"
-          ).value =
-            code;
-
+          ).value = code;
 
           document.getElementById(
             "removeBarcode"
-          ).style.display =
-            "block";
-
+          ).style.display = "block";
 
           stopBarcodeScanner();
 
         }
 
       }
-
     );
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      "Barcode scanner error:",
+      error
+    );
+
+    stopBarcodeScanner();
 
     alert(
-      "Impossible d'utiliser la caméra. Autorisez l'accès à la caméra."
+      "Impossible d'ouvrir la caméra. Vérifiez l'accès à la caméra."
     );
 
   }
