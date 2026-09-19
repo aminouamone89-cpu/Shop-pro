@@ -1028,41 +1028,54 @@ function removeProductPhoto(){
 /* =========================
    BARCODE
 ========================= */
-
 async function startBarcodeScanner(){
 
-  const video = document.getElementById("barcodeVideo");
+  const video =
+    document.getElementById("barcodeVideo");
 
   video.style.display = "block";
 
   document.getElementById("stopBarcode")
     .classList.remove("hidden");
 
-  try {
+  try{
 
-    barcodeReader = new ZXingBrowser.BrowserMultiFormatReader();
+    barcodeReader =
+      new ZXingBrowser.BrowserMultiFormatReader();
 
-    await barcodeReader.decodeFromConstraints(
-      {
-        video: {
-          facingMode: {
-            ideal: "environment"
-          }
-        }
-      },
+    const devices =
+      await ZXingBrowser.BrowserCodeReader
+        .listVideoInputDevices();
+
+    if(!devices.length){
+      throw new Error("NO_CAMERA");
+    }
+
+    const backCamera =
+      devices.find(function(device){
+        return /back|rear|environment|arrière|trasera|dorsal/i
+          .test(device.label);
+      }) || devices[devices.length - 1];
+
+    barcodeReader.decodeFromVideoDevice(
+      backCamera.deviceId,
       video,
       function(result){
 
-        if (result) {
+        if(result){
 
-          const code = result.getText();
+          const code =
+            result.getText();
 
-          if (code) {
+          if(code){
 
-            document.getElementById("productBarcode").value = code;
+            document.getElementById(
+              "productBarcode"
+            ).value = code;
 
-            document.getElementById("removeBarcode")
-              .style.display = "block";
+            document.getElementById(
+              "removeBarcode"
+            ).style.display = "block";
 
             stopBarcodeScanner();
           }
@@ -1070,17 +1083,23 @@ async function startBarcodeScanner(){
       }
     );
 
-  } catch(error) {
+  }catch(error){
 
-    console.error("Barcode scanner error:", error);
+    console.error(
+      "Barcode scanner error:",
+      error
+    );
 
     stopBarcodeScanner();
 
     alert(
-      "Impossible d'ouvrir la caméra. Vérifiez l'accès à la caméra."
+      "Impossible d'ouvrir la caméra. Vérifiez l'accès à la caméra et les autorisations du navigateur."
     );
   }
 }
+
+
+  
 
 
 function stopBarcodeScanner(){
