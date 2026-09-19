@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,95 +9,193 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
+
 body{
   margin:0;
   font-family:Arial,sans-serif;
-  background:#f5f6f8;
+  background:#f4f5f7;
   color:#222;
 }
+
 header{
   background:#111827;
   color:white;
-  padding:18px;
   text-align:center;
+  padding:18px;
   font-size:24px;
   font-weight:bold;
 }
+
 .page{
   display:none;
   max-width:600px;
   margin:auto;
-  padding:25px 18px;
+  padding:20px;
 }
-.page.active{display:block}
-h2{text-align:center}
-input,button{
+
+.page.active{
+  display:block;
+}
+
+h2{
+  text-align:center;
+  margin-bottom:25px;
+}
+
+input,
+button,
+select{
   width:100%;
   padding:14px;
-  margin:8px 0;
+  margin:7px 0;
   border-radius:10px;
   border:1px solid #ccc;
   font-size:16px;
 }
+
 button{
   background:#111827;
   color:white;
-  border:0;
+  border:none;
   font-weight:bold;
 }
+
 button.secondary{
   background:#e5e7eb;
   color:#111827;
 }
+
+button.danger{
+  background:#dc2626;
+}
+
+button.small{
+  width:auto;
+  padding:9px 12px;
+  margin:0;
+}
+
 .card{
   background:white;
-  padding:18px;
   border-radius:15px;
-  margin:12px 0;
-  box-shadow:0 2px 8px #0001;
+  padding:18px;
+  margin:15px 0;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
-.camera-box{
+
+.center{
   text-align:center;
+}
+
+.settings-button{
+  position:absolute;
+  right:15px;
+  top:15px;
+  width:auto;
+  padding:8px 10px;
+  margin:0;
+  font-size:18px;
+}
+
+.page-header{
+  position:relative;
+  min-height:45px;
+}
+
+.page-header h2{
+  margin-top:5px;
+}
+
+.photo-box{
+  text-align:center;
+  border:2px dashed #ccc;
+  border-radius:12px;
+  padding:15px;
   margin:15px 0;
 }
-.camera-box img{
+
+.photo-box img{
+  display:none;
   width:180px;
   height:180px;
   object-fit:cover;
-  border-radius:15px;
-  display:none;
-  margin:10px auto;
+  border-radius:12px;
+  margin:12px auto;
 }
-#video{
+
+.remove-button{
+  display:none;
+  width:auto;
+  margin:5px auto;
+  background:#dc2626;
+  padding:8px 15px;
+}
+
+#qr{
+  display:flex;
+  justify-content:center;
+  margin:20px 0;
+}
+
+#barcodeVideo{
+  display:none;
   width:100%;
-  max-height:350px;
-  border-radius:15px;
+  border-radius:12px;
   background:#000;
-  display:none;
+  margin:10px 0;
 }
-.back{
-  background:#6b7280;
-}
-.product{
+
+.product-item{
+  background:white;
+  border-radius:12px;
+  padding:12px;
+  margin:10px 0;
   display:flex;
   align-items:center;
-  gap:15px;
+  gap:12px;
 }
-.product img{
+
+.product-item img{
   width:70px;
   height:70px;
   object-fit:cover;
   border-radius:10px;
 }
-.price{
+
+.product-info{
+  flex:1;
+}
+
+.product-price{
   font-weight:bold;
   margin-top:5px;
 }
-#qr{
+
+.hidden{
+  display:none!important;
+}
+
+.logout{
+  margin-top:30px;
+  background:#dc2626;
+}
+
+.language-box{
   display:flex;
-  justify-content:center;
-  margin:25px 0;
+  gap:10px;
+}
+
+.language-box button{
+  flex:1;
+}
+
+.notice{
+  color:#666;
+  font-size:14px;
+  text-align:center;
 }
 </style>
 </head>
@@ -106,30 +204,1828 @@ button.secondary{
 
 <header>Shop Pro</header>
 
-<!-- PAGE 1 -->
-<section id="storePage" class="page active">
-  <h2>Create Your Store</h2>
 
-  <input id="storeName" placeholder="Store name">
-  <input id="phone" placeholder="Phone number">
+<!-- =========================
+     PAGE 1 : CREATE STORE
+========================= -->
 
-  <div class="card camera-box">
-    <b>Store Logo / Photo</b>
+<section id="pageCreateStore" class="page active">
+
+  <h2 id="createTitle">Créer votre magasin</h2>
+
+  <input
+    id="storeOwnerName"
+    type="text"
+    placeholder="Nom du propriétaire"
+  >
+
+  <input
+    id="storeName"
+    type="text"
+    placeholder="Nom du magasin"
+  >
+
+  <input
+    id="storePhone"
+    type="tel"
+    placeholder="Numéro de téléphone"
+  >
+
+  <div class="photo-box">
+
+    <b>Photo du magasin / Logo</b>
 
     <input
-      type="file"
       id="storePhoto"
+      type="file"
       accept="image/*"
-      capture="environment"
-   onchange="previewStorePhoto(event)"
-      >
+      onchange="selectStorePhoto(event)"
+    >
 
-    <img id="storePreview">
+    <img id="storePhotoPreview">
+
+    <button
+      id="removeStorePhoto"
+      class="remove-button"
+      onclick="removeStorePhoto()"
+    >
+      ✕ Supprimer
+    </button>
+
   </div>
 
-  <input id="facebook" placeholder="Facebook">
-  <input id="instagram" placeholder="Instagram">
-  <input id="tiktok" placeholder="TikTok">
 
-  <button onclick="createStore()">Next</button>
-</section
+  <div class="card">
+
+    <b>Réseaux sociaux (optionnel)</b>
+
+    <input
+      id="facebook"
+      type="text"
+      placeholder="Facebook"
+    >
+
+    <input
+      id="instagram"
+      type="text"
+      placeholder="Instagram"
+    >
+
+    <input
+      id="tiktok"
+      type="text"
+      placeholder="TikTok"
+    >
+
+  </div>
+
+
+  <button onclick="createStore()">
+    Next
+  </button>
+
+</section>
+
+
+<!-- =========================
+     PAGE 2 : STORE / QR
+========================= -->
+
+<section id="pageStore" class="page">
+
+  <div class="page-header">
+
+    <button
+      class="settings-button"
+      onclick="openSettings()"
+    >
+      ⚙️
+    </button>
+
+    <h2>
+      مرحبا بك سيد
+      <span id="welcomeName"></span>
+    </h2>
+
+  </div>
+
+
+  <div class="card center">
+
+    <h3>QR Code</h3>
+
+    <p class="notice">
+      قم بتحميل أو طباعة هذا الكود ووضعه في المحل.
+    </p>
+
+    <div id="qr"></div>
+
+    <button onclick="downloadQR()">
+      تحميل QR
+    </button>
+
+    <button onclick="printQR()">
+      طباعة QR
+    </button>
+
+  </div>
+
+
+  <button onclick="openAddProduct()">
+    Next
+  </button>
+
+</section>
+
+
+<!-- =========================
+     PAGE 3 : ADD PRODUCT
+========================= -->
+
+<section id="pageAddProduct" class="page">
+
+  <h2>Ajouter un produit</h2>
+
+
+  <!-- PRODUCT PHOTO -->
+
+  <div class="photo-box">
+
+    <b>Photo du produit</b>
+
+    <input
+      id="productPhoto"
+      type="file"
+      accept="image/*"
+      capture="environment"
+      onchange="selectProductPhoto(event)"
+    >
+
+    <img id="productPhotoPreview">
+
+    <button
+      id="removeProductPhoto"
+      class="remove-button"
+      onclick="removeProductPhoto()"
+    >
+      ✕ Supprimer
+    </button>
+
+  </div>
+
+
+  <!-- BARCODE -->
+
+  <div class="card">
+
+    <b>Code-barres</b>
+
+    <input
+      id="productBarcode"
+      type="text"
+      placeholder="Scanner le code-barres"
+      readonly
+    >
+
+    <button onclick="startBarcodeScanner()">
+      📷 Scanner le code-barres
+    </button>
+
+    <button
+      id="removeBarcode"
+      class="remove-button"
+      onclick="removeBarcode()"
+    >
+      ✕ Supprimer
+    </button>
+
+    <video
+      id="barcodeVideo"
+      autoplay
+      playsinline
+    ></video>
+
+    <button
+      id="stopBarcode"
+      class="secondary hidden"
+      onclick="stopBarcodeScanner()"
+    >
+      Arrêter la caméra
+    </button>
+
+  </div>
+
+
+  <!-- PRICE -->
+
+  <div class="card">
+
+    <b>Prix</b>
+
+    <input
+      id="productPrice"
+      type="number"
+      placeholder="Prix en DZD"
+    >
+
+    <button
+      id="removePrice"
+      class="remove-button"
+      onclick="removePrice()"
+    >
+      ✕ Supprimer
+    </button>
+
+  </div>
+
+
+  <button onclick="saveProduct()">
+    Save
+  </button>
+
+
+  <button
+    class="secondary"
+    onclick="openProducts()"
+  >
+    Modifier les produits
+  </button>
+
+
+  <button
+    class="logout"
+    onclick="disconnect()"
+  >
+    Déconnecter
+  </button>
+
+</section>
+
+
+<!-- =========================
+     SETTINGS
+========================= -->
+
+<section id="pageSettings" class="page">
+
+  <h2>Settings</h2>
+
+
+  <div class="card">
+
+    <h3>Language</h3>
+
+    <div class="language-box">
+
+      <button onclick="setLanguage('fr')">
+        Français
+      </button>
+
+      <button onclick="setLanguage('ar')">
+        العربية
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h3>Profile</h3>
+
+    <button onclick="editProfile()">
+      Modifier le profil
+    </button>
+
+  </div>
+
+
+  <div class="card">
+
+    <h3>Produits</h3>
+
+    <button onclick="openProducts()">
+      Modifier les produits
+    </button>
+
+  </div>
+
+
+  <button
+    class="secondary"
+    onclick="showPage('pageStore')"
+  >
+    Retour
+  </button>
+
+</section>
+
+
+<!-- =========================
+     PRODUCTS
+========================= -->
+
+<section id="pageProducts" class="page">
+
+  <h2>Produits</h2>
+
+  <div id="productsList"></div>
+
+  <button onclick="openAddProduct()">
+    + Ajouter un produit
+  </button>
+
+  <button
+    class="secondary"
+    onclick="openSettings()"
+  >
+    Retour
+  </button>
+
+</section>
+
+
+<script>
+
+/* =========================
+   DATA
+========================= */
+
+let store = JSON.parse(
+  localStorage.getItem("shopProStore") || "null"
+);
+
+let products = JSON.parse(
+  localStorage.getItem("shopProProducts") || "[]"
+);
+
+let storePhotoData = "";
+let productPhotoData = "";
+
+let barcodeReader = null;
+
+
+/* =========================
+   PAGE NAVIGATION
+========================= */
+
+function showPage(pageId){
+
+  document.querySelectorAll(".page").forEach(function(page){
+
+    page.classList.remove("active");
+
+  });
+
+  const page = document.getElementById(pageId);
+
+  if(page){
+
+    page.classList.add("active");
+
+  }
+
+  window.scrollTo(0,0);
+}
+
+
+/* =========================
+   IMAGE PROCESSING
+========================= */
+
+function readImage(file, callback){
+
+  const reader = new FileReader();
+
+  reader.onload = function(event){
+
+    const img = new Image();
+
+    img.onload = function(){
+
+      const canvas = document.createElement("canvas");
+
+      const maxSize = 800;
+
+      let width = img.width;
+      let height = img.height;
+
+      if(width > height){
+
+        if(width > maxSize){
+
+          height =
+            height * maxSize / width;
+
+          width = maxSize;
+
+        }
+
+      }else{
+
+        if(height > maxSize){
+
+          width =
+            width * maxSize / height;
+
+          height = maxSize;
+
+        }
+
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      const context =
+        canvas.getContext("2d");
+
+      context.drawImage(
+        img,
+        0,
+        0,
+        width,
+        height
+      );
+
+      callback(
+        canvas.toDataURL(
+          "image/jpeg",
+          0.8
+        )
+      );
+
+    };
+
+    img.src = event.target.result;
+
+  };
+
+  reader.readAsDataURL(file);
+}
+
+
+/* =========================
+   STORE PHOTO
+========================= */
+
+function selectStorePhoto(event){
+
+  const file =
+    event.target.files[0];
+
+  if(!file){
+    return;
+  }
+
+  readImage(file,function(data){
+
+    storePhotoData = data;
+
+    const image =
+      document.getElementById(
+        "storePhotoPreview"
+      );
+
+    image.src = data;
+
+    image.style.display = "block";
+
+    document.getElementById(
+      "removeStorePhoto"
+    ).style.display = "block";
+
+  });
+}
+
+
+function removeStorePhoto(){
+
+  storePhotoData = "";
+
+  document.getElementById(
+    "storePhoto"
+  ).value = "";
+
+  document.getElementById(
+    "storePhotoPreview"
+  ).style.display = "none";
+
+  document.getElementById(
+    "removeStorePhoto"
+  ).style.display = "none";
+}
+
+
+/* =========================
+   CREATE STORE
+========================= */
+
+function createStore(){
+
+  const ownerName =
+    document.getElementById(
+      "storeOwnerName"
+    ).value.trim();
+
+  const storeName =
+    document.getElementById(
+      "storeName"
+    ).value.trim();
+
+  const phone =
+    document.getElementById(
+      "storePhone"
+    ).value.trim();
+
+
+  if(!ownerName){
+
+    alert("Veuillez entrer votre nom.");
+
+    return;
+  }
+
+
+  if(!storeName){
+
+    alert("Veuillez entrer le nom du magasin.");
+
+    return;
+  }
+
+
+  if(!phone){
+
+    alert("Veuillez entrer le numéro de téléphone.");
+
+    return;
+  }
+
+
+  store = {
+
+    id:
+      "store_" +
+      Date.now(),
+
+    ownerName:
+      ownerName,
+
+    name:
+      storeName,
+
+    phone:
+      phone,
+
+    photo:
+      storePhotoData,
+
+    facebook:
+      document.getElementById(
+        "facebook"
+      ).value.trim(),
+
+    instagram:
+      document.getElementById(
+        "instagram"
+      ).value.trim(),
+
+    tiktok:
+      document.getElementById(
+        "tiktok"
+      ).value.trim()
+
+  };
+
+
+  localStorage.setItem(
+    "shopProStore",
+    JSON.stringify(store)
+  );
+
+
+  document.getElementById(
+    "welcomeName"
+  ).textContent =
+    ownerName;
+
+
+  createQR();
+
+
+  showPage("pageStore");
+}
+
+
+/* =========================
+   QR CODE
+========================= */
+
+function createQR(){
+
+  const qr =
+    document.getElementById("qr");
+
+  qr.innerHTML = "";
+
+
+  if(!store){
+    return;
+  }
+
+
+  const storeURL =
+    window.location.origin +
+    window.location.pathname +
+    "?store=" +
+    encodeURIComponent(
+      store.id
+    );
+
+
+  new QRCode(qr,{
+
+    text:storeURL,
+
+    width:220,
+
+    height:220,
+
+    correctLevel:
+      QRCode.CorrectLevel.H
+
+  });
+}
+
+
+function downloadQR(){
+
+  const canvas =
+    document.querySelector(
+      "#qr canvas"
+    );
+
+  if(!canvas){
+
+    alert("QR non disponible.");
+
+    return;
+  }
+
+
+  const link =
+    document.createElement("a");
+
+  link.download =
+    "Shop-Pro-QR.png";
+
+  link.href =
+    canvas.toDataURL(
+      "image/png"
+    );
+
+  link.click();
+}
+
+
+function printQR(){
+
+  const canvas =
+    document.querySelector(
+      "#qr canvas"
+    );
+
+  if(!canvas){
+
+    alert("QR non disponible.");
+
+    return;
+  }
+
+
+  const image =
+    canvas.toDataURL(
+      "image/png"
+    );
+
+
+  const printWindow =
+    window.open(
+      "",
+      "_blank"
+    );
+
+
+  if(!printWindow){
+
+    alert(
+      "Veuillez autoriser les fenêtres popup."
+    );
+
+    return;
+  }
+
+
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Shop Pro QR</title>
+      </head>
+
+      <body style="
+        text-align:center;
+        font-family:Arial;
+        padding-top:50px;
+      ">
+
+        <h2>${escapeHTML(
+          store ? store.name : "Shop Pro"
+        )}</h2>
+
+        <img
+          src="${image}"
+          style="width:300px"
+        >
+
+        <script>
+          window.onload=function(){
+            window.print();
+          };
+        <\/script>
+
+      </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+}
+
+
+/* =========================
+   PRODUCT PHOTO
+========================= */
+
+function selectProductPhoto(event){
+
+  const file =
+    event.target.files[0];
+
+  if(!file){
+    return;
+  }
+
+
+  readImage(file,function(data){
+
+    productPhotoData = data;
+
+
+    const image =
+      document.getElementById(
+        "productPhotoPreview"
+      );
+
+
+    image.src = data;
+
+    image.style.display =
+      "block";
+
+
+    document.getElementById(
+      "removeProductPhoto"
+    ).style.display =
+      "block";
+
+  });
+}
+
+
+function removeProductPhoto(){
+
+  productPhotoData = "";
+
+  document.getElementById(
+    "productPhoto"
+  ).value = "";
+
+
+  document.getElementById(
+    "productPhotoPreview"
+  ).style.display =
+    "none";
+
+
+  document.getElementById(
+    "removeProductPhoto"
+  ).style.display =
+    "none";
+}
+
+
+/* =========================
+   BARCODE
+========================= */
+
+async function startBarcodeScanner(){
+
+  const video =
+    document.getElementById(
+      "barcodeVideo"
+    );
+
+
+  video.style.display =
+    "block";
+
+
+  document.getElementById(
+    "stopBarcode"
+  ).classList.remove(
+    "hidden"
+  );
+
+
+  try{
+
+    barcodeReader =
+      new ZXingBrowser.BrowserMultiFormatReader();
+
+
+    await barcodeReader.decodeFromVideoDevice(
+
+      undefined,
+
+      video,
+
+      function(result){
+
+        if(result){
+
+          const code =
+            result.getText();
+
+
+          document.getElementById(
+            "productBarcode"
+          ).value =
+            code;
+
+
+          document.getElementById(
+            "removeBarcode"
+          ).style.display =
+            "block";
+
+
+          stopBarcodeScanner();
+
+        }
+
+      }
+
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "Impossible d'utiliser la caméra. Autorisez l'accès à la caméra."
+    );
+
+  }
+}
+
+
+function stopBarcodeScanner(){
+
+  if(barcodeReader){
+
+    barcodeReader.reset();
+
+    barcodeReader = null;
+
+  }
+
+
+  const video =
+    document.getElementById(
+      "barcodeVideo"
+    );
+
+
+  video.pause();
+
+  video.srcObject =
+    null;
+
+  video.style.display =
+    "none";
+
+
+  document.getElementById(
+    "stopBarcode"
+  ).classList.add(
+    "hidden"
+  );
+}
+
+
+function removeBarcode(){
+
+  document.getElementById(
+    "productBarcode"
+  ).value = "";
+
+
+  document.getElementById(
+    "removeBarcode"
+  ).style.display =
+    "none";
+}
+
+
+/* =========================
+   PRICE
+========================= */
+
+document.addEventListener(
+  "input",
+  function(event){
+
+    if(event.target.id === "productPrice"){
+
+      document.getElementById(
+        "removePrice"
+      ).style.display =
+        event.target.value
+        ? "block"
+        : "none";
+
+    }
+
+  }
+);
+
+
+function removePrice(){
+
+  document.getElementById(
+    "productPrice"
+  ).value = "";
+
+
+  document.getElementById(
+    "removePrice"
+  ).style.display =
+    "none";
+}
+
+
+/* =========================
+   SAVE PRODUCT
+========================= */
+
+function saveProduct(){
+
+  const barcode =
+    document.getElementById(
+      "productBarcode"
+    ).value.trim();
+
+
+  const price =
+    document.getElementById(
+      "productPrice"
+    ).value.trim();
+
+
+  if(!productPhotoData){
+
+    alert(
+      "Veuillez ajouter une photo du produit."
+    );
+
+    return;
+  }
+
+
+  if(!barcode){
+
+    alert(
+      "Veuillez scanner le code-barres."
+    );
+
+    return;
+  }
+
+
+  if(!price){
+
+    alert(
+      "Veuillez entrer le prix."
+    );
+
+    return;
+  }
+
+
+  const product = {
+
+    id:
+      "product_" +
+      Date.now(),
+
+    photo:
+      productPhotoData,
+
+    barcode:
+      barcode,
+
+    price:
+      price
+
+  };
+
+
+  products.push(product);
+
+
+  localStorage.setItem(
+    "shopProProducts",
+    JSON.stringify(products)
+  );
+
+
+  alert(
+    "Produit enregistré."
+  );
+
+
+  /*
+
+     IMPORTANT:
+     Après Save, on retourne
+     immédiatement à une page
+     vide pour photographier
+     un nouveau produit.
+
+  */
+
+  clearProductForm();
+
+  showPage(
+    "pageAddProduct"
+  );
+}
+
+
+/* =========================
+   CLEAR PRODUCT FORM
+========================= */
+
+function clearProductForm(){
+
+  productPhotoData = "";
+
+
+  document.getElementById(
+    "productPhoto"
+  ).value = "";
+
+
+  document.getElementById(
+    "productPhotoPreview"
+  ).style.display =
+    "none";
+
+
+  document.getElementById(
+    "removeProductPhoto"
+  ).style.display =
+    "none";
+
+
+  document.getElementById(
+    "productBarcode"
+  ).value = "";
+
+
+  document.getElementById(
+    "removeBarcode"
+  ).style.display =
+    "none";
+
+
+  document.getElementById(
+    "productPrice"
+  ).value = "";
+
+
+  document.getElementById(
+    "removePrice"
+  ).style.display =
+    "none";
+}
+
+
+/* =========================
+   PRODUCTS
+========================= */
+
+function openProducts(){
+
+  renderProducts();
+
+  showPage(
+    "pageProducts"
+  );
+}
+
+
+function renderProducts(){
+
+  const list =
+    document.getElementById(
+      "productsList"
+    );
+
+
+  list.innerHTML = "";
+
+
+  if(products.length === 0){
+
+    list.innerHTML =
+      '<div class="card center">Aucun produit enregistré.</div>';
+
+    return;
+  }
+
+
+  products.forEach(function(product){
+
+    const item =
+      document.createElement(
+        "div"
+      );
+
+
+    item.className =
+      "product-item";
+
+
+    item.innerHTML = `
+
+      <img
+        src="${product.photo}"
+      >
+
+      <div class="product-info">
+
+        <b>
+          Produit
+        </b>
+
+        <div>
+          ${escapeHTML(
+            product.price
+          )} DZD
+        </div>
+
+        <div class="notice">
+          ${escapeHTML(
+            product.barcode
+          )}
+        </div>
+
+      </div>
+
+      <button
+        class="small"
+        onclick="editProduct('${product.id}')"
+      >
+        Modifier
+      </button>
+
+    `;
+
+
+    list.appendChild(item);
+
+  });
+}
+
+
+/* =========================
+   EDIT PRODUCT
+========================= */
+
+function editProduct(id){
+
+  const product =
+    products.find(function(item){
+
+      return item.id === id;
+
+    });
+
+
+  if(!product){
+    return;
+  }
+
+
+  productPhotoData =
+    product.photo || "";
+
+
+  document.getElementById(
+    "productBarcode"
+  ).value =
+    product.barcode || "";
+
+
+  document.getElementById(
+    "productPrice"
+  ).value =
+    product.price || "";
+
+
+  if(product.photo){
+
+    const image =
+      document.getElementById(
+        "productPhotoPreview"
+      );
+
+
+    image.src =
+      product.photo;
+
+
+    image.style.display =
+      "block";
+
+
+    document.getElementById(
+      "removeProductPhoto"
+    ).style.display =
+      "block";
+
+  }
+
+
+  document.getElementById(
+    "removeBarcode"
+  ).style.display =
+    product.barcode
+    ? "block"
+    : "none";
+
+
+  document.getElementById(
+    "removePrice"
+  ).style.display =
+    product.price
+    ? "block"
+    : "none";
+
+
+  showPage(
+    "pageAddProduct"
+  );
+
+
+  window.currentEditingProduct =
+    id;
+}
+
+
+/* =========================
+   UPDATE EXISTING PRODUCT
+========================= */
+
+const originalSaveProduct =
+  saveProduct;
+
+
+function saveProduct(){
+
+  const editingId =
+    window.currentEditingProduct;
+
+
+  const barcode =
+    document.getElementById(
+      "productBarcode"
+    ).value.trim();
+
+
+  const price =
+    document.getElementById(
+      "productPrice"
+    ).value.trim();
+
+
+  if(!productPhotoData){
+
+    alert(
+      "Veuillez ajouter une photo du produit."
+    );
+
+    return;
+  }
+
+
+  if(!barcode){
+
+    alert(
+      "Veuillez scanner le code-barres."
+    );
+
+    return;
+  }
+
+
+  if(!price){
+
+    alert(
+      "Veuillez entrer le prix."
+    );
+
+    return;
+  }
+
+
+  if(editingId){
+
+    const product =
+      products.find(function(item){
+
+        return item.id === editingId;
+
+      });
+
+
+    if(product){
+
+      product.photo =
+        productPhotoData;
+
+      product.barcode =
+        barcode;
+
+      product.price =
+        price;
+
+    }
+
+
+    localStorage.setItem(
+      "shopProProducts",
+      JSON.stringify(products)
+    );
+
+
+    window.currentEditingProduct =
+      null;
+
+
+    alert(
+      "Produit modifié."
+    );
+
+
+    clearProductForm();
+
+    openProducts();
+
+    return;
+  }
+
+
+  const product = {
+
+    id:
+      "product_" +
+      Date.now(),
+
+    photo:
+      productPhotoData,
+
+    barcode:
+      barcode,
+
+    price:
+      price
+
+  };
+
+
+  products.push(product);
+
+
+  localStorage.setItem(
+    "shopProProducts",
+    JSON.stringify(products)
+  );
+
+
+  alert(
+    "Produit enregistré."
+  );
+
+
+  clearProductForm();
+
+
+  showPage(
+    "pageAddProduct"
+  );
+}
+
+
+/* =========================
+   SETTINGS
+========================= */
+
+function openSettings(){
+
+  showPage(
+    "pageSettings"
+  );
+}
+
+
+function editProfile(){
+
+  if(!store){
+    return;
+  }
+
+
+  document.getElementById(
+    "storeOwnerName"
+  ).value =
+    store.ownerName || "";
+
+
+  document.getElementById(
+    "storeName"
+  ).value =
+    store.name || "";
+
+
+  document.getElementById(
+    "storePhone"
+  ).value =
+    store.phone || "";
+
+
+  document.getElementById(
+    "facebook"
+  ).value =
+    store.facebook || "";
+
+
+  document.getElementById(
+    "instagram"
+  ).value =
+    store.instagram || "";
+
+
+  document.getElementById(
+    "tiktok"
+  ).value =
+    store.tiktok || "";
+
+
+  if(store.photo){
+
+    storePhotoData =
+      store.photo;
+
+
+    const image =
+      document.getElementById(
+        "storePhotoPreview"
+      );
+
+
+    image.src =
+      store.photo;
+
+
+    image.style.display =
+      "block";
+
+
+    document.getElementById(
+      "removeStorePhoto"
+    ).style.display =
+      "block";
+
+  }
+
+
+  showPage(
+    "pageCreateStore"
+  );
+
+
+  const button =
+    document.querySelector(
+      "#pageCreateStore button[onclick='createStore()']"
+    );
+
+
+  if(button){
+
+    button.textContent =
+      "Save Profile";
+
+    button.onclick =
+      updateProfile;
+
+  }
+}
+
+
+function updateProfile(){
+
+  if(!store){
+    return;
+  }
+
+
+  store.ownerName =
+    document.getElementById(
+      "storeOwnerName"
+    ).value.trim();
+
+
+  store.name =
+    document.getElementById(
+      "storeName"
+    ).value.trim();
+
+
+  store.phone =
+    document.getElementById(
+      "storePhone"
+    ).value.trim();
+
+
+  store.photo =
+    storePhotoData;
+
+
+  store.facebook =
+    document.getElementById(
+      "facebook"
+    ).value.trim();
+
+
+  store.instagram =
+    document.getElementById(
+      "instagram"
+    ).value.trim();
+
+
+  store.tiktok =
+    document.getElementById(
+      "tiktok"
+    ).value.trim();
+
+
+  localStorage.setItem(
+    "shopProStore",
+    JSON.stringify(store)
+  );
+
+
+  document.getElementById(
+    "welcomeName"
+  ).textContent =
+    store.ownerName;
+
+
+  createQR();
+
+
+  const button =
+    document.querySelector(
+      "#pageCreateStore button"
+    );
+
+
+  button.textContent =
+    "Next";
+
+
+  button.onclick =
+    createStore;
+
+
+  alert(
+    "Profil modifié."
+  );
+
+
+  showPage(
+    "pageStore"
+  );
+}
+
+
+/* =========================
+   LANGUAGE
+========================= */
+
+function setLanguage(language){
+
+  if(language === "ar"){
+
+    alert(
+      "سيتم إضافة الترجمة العربية الكاملة في المرحلة التالية."
+    );
+
+  }else{
+
+    alert(
+      "Français sélectionné."
+    );
+
+  }
+}
+
+
+/* =========================
+   ADD PRODUCT
+========================= */
+
+function openAddProduct(){
+
+  window.currentEditingProduct =
+    null;
+
+  clearProductForm();
+
+  showPage(
+    "pageAddProduct"
+  );
+}
+
+
+/* =========================
+   DISCONNECT
+========================= */
+
+function disconnect(){
+
+  if(
+    confirm(
+      "Voulez-vous vraiment vous déconnecter ?"
+    )
+  ){
+
+    localStorage.removeItem(
+      "shopProStore"
+    );
+
+    localStorage.removeItem(
+      "shopProProducts"
+    );
+
+
+    store = null;
+
+    products = [];
+
+
+    location.reload();
+
+  }
+}
+
+
+/* =========================
+   SECURITY
+========================= */
+
+function escapeHTML(value){
+
+  return String(value)
+
+    .replace(/&/g,"&amp;")
+
+    .replace(/</g,"&lt;")
+
+    .replace(/>/g,"&gt;")
+
+    .replace(/"/g,"&quot;")
+
+    .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================
+   LOAD EXISTING STORE
+========================= */
+
+function loadStore(){
+
+  if(!store){
+    return;
+  }
+
+
+  document.getElementById(
+    "storeOwnerName"
+  ).value =
+    store.ownerName || "";
+
+
+  document.getElementById(
+    "storeName"
+  ).value =
+    store.name || "";
+
+
+  document.getElementById(
+    "storePhone"
+  ).value =
+    store.phone || "";
+
+
+  document.getElementById(
+    "facebook"
+  ).value =
+    store.facebook || "";
+
+
+  document.getElementById(
+    "instagram"
+  ).value =
+    store.instagram || "";
+
+
+  document.getElementById(
+    "tiktok"
+  ).value =
+    store.tiktok || "";
+
+
+  if(store.photo){
+
+    storePhotoData =
+      store.photo;
+
+
+    const image =
+      document.getElementById(
+        "storePhotoPreview"
+      );
+
+
+    image.src =
+      store.photo;
+
+
+    image.style.display =
+      "block";
+
+
+    document.getElementById(
+      "removeStorePhoto"
+    ).style.display =
+      "block";
+
+  }
+
+
+  document.getElementById(
+    "welcomeName"
+  ).textContent =
+    store.ownerName || "";
+
+
+  createQR();
+}
+
+
+/* =========================
+   START
+========================= */
+
+loadStore();
+
+</script>
+
+</body>
+  </html>
