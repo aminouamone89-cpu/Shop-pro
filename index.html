@@ -1029,54 +1029,7 @@ function removeProductPhoto(){
    BARCODE
 ========================= */
 
-async function startBarcodeScanner(){
 
-  const video =
-    document.getElementById("barcodeVideo");
-
-  try{
-
-    video.style.display = "block";
-
-    document.getElementById("stopBarcode")
-      .classList.remove("hidden");
-
-    const stream =
-      await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: {
-            ideal: "environment"
-          }
-        },
-        audio: false
-      });
-
-    video.srcObject = stream;
-video.muted = true;
-video.setAttribute("playsinline", "true");
-video.autoplay = true;
-
-    await video.play();
-
-    barcodeReader =
-      new ZXingBrowser.BrowserMultiFormatReader();
-
-    
-
-  }catch(error){
-
-    console.error(
-      "Camera error:",
-      error
-    );
-
-    stopBarcodeScanner();
-
-    alert(
-      "Impossible d'ouvrir la caméra. Vérifiez l'autorisation de la caméra."
-    );
-  }
-}
 
 
   
