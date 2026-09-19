@@ -358,14 +358,67 @@
       </button>
 
     </div>
+</div>
 
+<!-- QR DU MAGASIN -->
+
+<div class="card">
+
+  <h2>QR du magasin</h2>
+
+  <div id="qrcode"></div>
+
+  <button
+    class="success"
+    onclick="createQR()"
+  >
+    🔄 Générer le QR
+  </button>
+
+  <button
+    onclick="downloadQR()"
+  >
+    ⬇️ Télécharger le QR
+  </button>
+
+</div>
+
+<div class="nav-buttons">
+
+  <button
+    class="secondary"
+    onclick="nextPage(1)"
+  >
+    ← Back
+  </button>
     <div class="nav-buttons">
 
       <button
         class="secondary"
         onclick="nextPage(1)"
       >
-        ← Back
+       <!-- QR DU MAGASIN -->
+
+<div class="card">
+
+  <h2>QR du magasin</h2>
+
+  <div id="qrcode"></div>
+
+  <button
+    class="success"
+    onclick="createQR()"
+  >
+    🔄 Générer le QR
+  </button>
+
+  <button
+    onclick="downloadQR()"
+  >
+    ⬇️ Télécharger le QR
+  </button>
+
+</div> ← Back
       </button>
 
       <button
@@ -380,41 +433,7 @@
   </section>
 
 
-  <!-- =========================
-       PAGE 3 - STORE QR
-  ========================== -->
-
-  <section id="page3" class="page">
-
-    <div class="card">
-
-      <h2>QR du magasin</h2>
-
-      <p>
-        Le client peut scanner ce QR pour ouvrir
-        la page du magasin.
-      </p>
-
-      <div id="qrcode"></div>
-
-      <button
-        class="success"
-        onclick="createQR()"
-      >
-        Générer le QR
-      </button>
-
-    </div>
-
-    <button
-      class="secondary"
-      onclick="nextPage(2)"
-    >
-      ← Back
-    </button>
-
-  </section>
-
+  
 
   <!-- =========================
        PAGE 4 - CUSTOMER
@@ -1157,7 +1176,35 @@
       }
     );
   }
+function downloadQR() {
 
+  const qrCanvas =
+    document.querySelector(
+      "#qrcode canvas"
+    );
+
+  if (!qrCanvas) {
+
+    alert(
+      "Générez d'abord le QR code."
+    );
+
+    return;
+  }
+
+  const link =
+    document.createElement("a");
+
+  link.download =
+    "Shop-Pro-QR.png";
+
+  link.href =
+    qrCanvas.toDataURL(
+      "image/png"
+    );
+
+  link.click();
+}
 
   /* =========================
      LOAD DATA
