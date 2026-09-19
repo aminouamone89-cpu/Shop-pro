@@ -1028,6 +1028,7 @@ function removeProductPhoto(){
 /* =========================
    BARCODE
 ========================= */
+
 async function startBarcodeScanner(){
 
   const video =
@@ -1040,22 +1041,31 @@ async function startBarcodeScanner(){
     document.getElementById("stopBarcode")
       .classList.remove("hidden");
 
+    const stream =
+      await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: {
+            ideal: "environment"
+          }
+        },
+        audio: false
+      });
+
+    video.srcObject = stream;
+
+    await video.play();
+
     barcodeReader =
       new ZXingBrowser.BrowserMultiFormatReader();
 
-    barcodeReader.decodeFromConstraints(
-      {
-        video: {
-          facingMode: "environment"
-        }
-      },
+    barcodeReader.decodeFromVideoDevice(
+      undefined,
       video,
       function(result){
 
         if(result){
 
-          const code =
-            result.getText();
+          const code = result.getText();
 
           if(code){
 
@@ -1076,7 +1086,7 @@ async function startBarcodeScanner(){
   }catch(error){
 
     console.error(
-      "Barcode scanner error:",
+      "Camera error:",
       error
     );
 
