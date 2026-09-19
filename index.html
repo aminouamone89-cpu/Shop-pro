@@ -1052,6 +1052,9 @@ async function startBarcodeScanner(){
       });
 
     video.srcObject = stream;
+video.muted = true;
+video.setAttribute("playsinline", "true");
+video.autoplay = true;
 
     await video.play();
 
