@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Shop Pro</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
     * {
@@ -14,27 +15,49 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f4f6f8;
+      background: #f3f5f7;
       color: #222;
     }
 
-    header {
+    .topbar {
+      height: 64px;
       background: #111827;
       color: white;
-      padding: 18px;
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
     }
 
-    .container {
-      max-width: 600px;
-      margin: auto;
-      padding: 18px;
+    .topbar h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .settings-button {
+      position: absolute;
+      right: 14px;
+      top: 12px;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      background: white;
+      color: #111827;
+      font-size: 21px;
+      cursor: pointer;
+    }
+
+    [dir="rtl"] .settings-button {
+      right: auto;
+      left: 14px;
     }
 
     .page {
       display: none;
+      max-width: 520px;
+      margin: auto;
+      padding: 24px 18px 40px;
     }
 
     .page.active {
@@ -43,550 +66,895 @@
 
     .card {
       background: white;
-      padding: 18px;
-      border-radius: 14px;
-      margin-bottom: 18px;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 5px 20px rgba(0,0,0,.08);
     }
 
-    h2 {
-      margin-top: 0;
+    .page-title {
+      text-align: center;
+      margin: 5px 0 22px;
+      font-size: 24px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #6b7280;
+      margin-bottom: 22px;
     }
 
     label {
       display: block;
-      margin-top: 14px;
-      margin-bottom: 6px;
+      margin: 15px 0 7px;
       font-weight: bold;
     }
 
     input {
       width: 100%;
       padding: 13px;
-      border: 1px solid #ccc;
-      border-radius: 9px;
-      font-size: 16px;
-    }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 14px;
-      border: 0;
-      border-radius: 9px;
-      background: #2563eb;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button.secondary {
-      background: #6b7280;
-    }
-
-    button.danger {
-      background: #dc2626;
-    }
-
-    button.success {
-      background: #16a34a;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    img.preview {
-      width: 100%;
-      max-height: 280px;
-      object-fit: contain;
+      border: 1px solid #d1d5db;
       border-radius: 10px;
-      margin-top: 12px;
-      display: none;
-      background: #eee;
+      font-size: 16px;
+      background: white;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+
+    .camera-box {
+      margin-top: 8px;
+      border: 2px dashed #cbd5e1;
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
     }
 
     video {
       width: 100%;
-      max-height: 350px;
-      background: black;
+      max-height: 260px;
       border-radius: 12px;
-      margin-top: 14px;
+      background: black;
       display: none;
     }
 
-    .nav-buttons {
-      display: flex;
-      gap: 10px;
+    .preview {
+      width: 100%;
+      max-height: 230px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-top: 10px;
+      display: none;
     }
 
-    .nav-buttons button {
+    .camera-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 13px 16px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: #2563eb;
+      color: white;
+      width: 100%;
+    }
+
+    .secondary {
+      background: #e5e7eb;
+      color: #111827;
       flex: 1;
     }
 
-    .product-box {
-      background: #fff;
-      border-radius: 14px;
-      padding: 18px;
-      margin-top: 15px;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    .danger {
+      background: #dc2626;
+      color: white;
+      width: 100%;
     }
 
-    .product-box img {
+    .next-area {
+      margin-top: 20px;
+    }
+
+    .back-button {
+      background: #e5e7eb;
       width: 100%;
-      max-height: 250px;
-      object-fit: contain;
-      border-radius: 10px;
-      display: none;
+      margin-bottom: 10px;
+    }
+
+    .qr-card {
+      text-align: center;
+      padding: 30px 20px;
     }
 
     #qrcode {
-      text-align: center;
-      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 25px auto;
+      min-height: 260px;
     }
 
-    .small {
-      color: #666;
-      font-size: 14px;
+    #qrcode img,
+    #qrcode canvas {
+      max-width: 260px;
+      height: auto;
+      padding: 10px;
+      background: white;
+      border-radius: 10px;
+    }
+
+    .store-preview-name {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    .success-message {
+      display: none;
+      margin: 12px 0;
+      padding: 12px;
+      border-radius: 10px;
+      background: #dcfce7;
+      color: #166534;
+      text-align: center;
+    }
+
+    .scan-area {
+      margin-top: 8px;
+      border: 2px dashed #cbd5e1;
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    #barcodeVideo {
+      width: 100%;
+      height: 230px;
+      object-fit: cover;
+      border-radius: 12px;
+      background: black;
+      display: none;
+    }
+
+    .settings-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      z-index: 1000;
+      padding: 15px;
+      overflow-y: auto;
+    }
+
+    .settings-panel {
+      background: white;
+      width: 100%;
+      max-width: 520px;
+      margin: 30px auto;
+      border-radius: 18px;
+      padding: 20px;
+    }
+
+    .settings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .settings-header h2 {
+      margin: 0;
+    }
+
+    .close-settings {
+      background: #e5e7eb;
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      font-size: 20px;
+    }
+
+    .setting-item {
+      width: 100%;
+      padding: 15px;
+      margin: 7px 0;
+      background: #f3f4f6;
+      border-radius: 12px;
+      text-align: start;
+      font-weight: bold;
+    }
+
+    .settings-section {
+      display: none;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #ddd;
+    }
+
+    .settings-section.active {
+      display: block;
+    }
+
+    .language-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .language-buttons button {
+      flex: 1;
+    }
+
+    .product-list {
+      margin-top: 10px;
+    }
+
+    .product-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 12px;
+      margin: 8px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .product-info {
+      min-width: 0;
+    }
+
+    .product-name {
+      font-weight: bold;
+      word-break: break-word;
+    }
+
+    .product-price {
+      color: #2563eb;
+      margin-top: 4px;
+    }
+
+    .edit-product {
+      background: #2563eb;
+      color: white;
+      padding: 9px 12px;
+      white-space: nowrap;
+    }
+
+    .empty {
+      text-align: center;
+      color: #6b7280;
+      padding: 15px;
+    }
+
+    .social-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+
+    .small-note {
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 480px) {
+      .page {
+        padding: 18px 12px 35px;
+      }
+
+      .card {
+        padding: 18px;
+      }
+
+      .page-title {
+        font-size: 22px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-<header>
-  Shop Pro
-</header>
+  <header class="topbar">
+    <h1>Shop Pro</h1>
+    <button class="settings-button" onclick="openSettings()">⚙️</button>
+  </header>
 
-<div class="container">
-
-  <!-- =========================
-       PAGE 1 - STORE
-  ========================== -->
-
+  <!-- PAGE 1 -->
   <section id="page1" class="page active">
-
     <div class="card">
 
-      <h2>Informations du magasin</h2>
-
-      <label>Nom du magasin</label>
-      <input
-        id="storeName"
-        type="text"
-        placeholder="Nom du magasin"
-      >
-
-      <label>Téléphone</label>
-      <input
-        id="storePhone"
-        type="tel"
-        placeholder="Téléphone"
-      >
-
-      <label>Instagram</label>
-      <input
-        id="instagram"
-        type="text"
-        placeholder="@instagram"
-      >
-
-      <label>TikTok</label>
-      <input
-        id="tiktok"
-        type="text"
-        placeholder="@tiktok"
-      >
-
-      <label>Photo du magasin</label>
-
-      <button onclick="startStoreCamera()">
-        📷 Prendre une photo
-      </button>
-
-      <video
-        id="storeVideo"
-        autoplay
-        playsinline
-      ></video>
-
-      <button
-        id="captureStore"
-        class="success hidden"
-        onclick="captureStorePhoto()"
-      >
-        📸 Capturer
-      </button>
-
-      <button
-        id="stopStoreCamera"
-        class="secondary hidden"
-        onclick="stopStoreCamera()"
-      >
-        Arrêter la caméra
-      </button>
-
-      <img
-        id="storePhotoPreview"
-        class="preview"
-        alt="Photo du magasin"
-      >
-
-      <button
-        id="removeStorePhoto"
-        class="danger hidden"
-        onclick="removeStorePhoto()"
-      >
-        ✕ Supprimer la photo
-      </button>
-
-    </div>
-
-    <div class="nav-buttons">
-
-      <button onclick="saveStore()">
-        Enregistrer
-      </button>
-
-      <button onclick="nextPage(2)">
-        Next →
-      </button>
-
-    </div>
-
-  </section>
-
-
-  <!-- =========================
-       PAGE 2 - PRODUCT
-  ========================== -->
-
-  <section id="page2" class="page">
-
-    <div class="card">
-
-      <h2>Nouveau produit</h2>
-
-      <label>Nom du produit</label>
-
-      <input
-        id="productName"
-        type="text"
-        placeholder="Nom du produit"
-      >
-
-      <label>Prix (DA)</label>
-
-      <input
-        id="productPrice"
-        type="number"
-        placeholder="Prix"
-      >
-
-      <label>Code-barres</label>
-
-      <input
-        id="productBarcode"
-        type="text"
-        placeholder="Scanner ou saisir le code"
-      >
-
-      <button onclick="startBarcodeCamera()">
-        📷 Scanner le code-barres
-      </button>
-
-      <video
-        id="barcodeVideo"
-        autoplay
-        playsinline
-      ></video>
-
-      <button
-        id="stopBarcode"
-        class="secondary hidden"
-        onclick="stopBarcodeCamera()"
-      >
-        Arrêter la caméra
-      </button>
-
-      <p class="small">
-        Si votre navigateur ne reconnaît pas automatiquement
-        le code-barres, vous pouvez saisir le numéro manuellement.
+      <h2 class="page-title" data-i18n="storeInfo">Informations du magasin</h2>
+      <p class="subtitle" data-i18n="storeSubtitle">
+        Créez votre profil de magasin
       </p>
 
-      <label>Photo du produit</label>
+      <label data-i18n="storeName">Nom du magasin</label>
+      <input id="storeName" type="text" placeholder="Nom du magasin">
 
-      <button onclick="startProductCamera()">
-        📷 Prendre une photo
-      </button>
+      <label data-i18n="phone">Téléphone</label>
+      <input id="storePhone" type="tel" placeholder="Téléphone">
 
-      <video
-        id="productVideo"
-        autoplay
-        playsinline
-      ></video>
+      <label data-i18n="storePhoto">Photo du magasin</label>
 
-      <button
-        id="captureProduct"
-        class="success hidden"
-        onclick="captureProductPhoto()"
-      >
-        📸 Capturer
-      </button>
+      <div class="camera-box">
+        <video id="storeVideo" autoplay playsinline></video>
 
-      <button
-        id="stopProductCamera"
-        class="secondary hidden"
-        onclick="stopProductCamera()"
-      >
-        Arrêter la caméra
-      </button>
+        <img id="storePreview" class="preview">
 
-      <img
-        id="productPhotoPreview"
-        class="preview"
-        alt="Photo du produit"
-      >
+        <div class="camera-buttons">
+          <button class="secondary" onclick="startStoreCamera()" data-i18n="camera">
+            📷 Caméra
+          </button>
 
-      <button
-        id="removeProductPhoto"
-        class="danger hidden"
-        onclick="removeProductPhoto()"
-      >
-        ✕ Supprimer la photo
-      </button>
+          <button class="secondary" onclick="captureStorePhoto()" data-i18n="capture">
+            Capturer
+          </button>
+        </div>
 
-    </div>
-</div>
+        <button
+          class="secondary"
+          style="width:100%;margin-top:8px;"
+          onclick="stopStoreCamera()"
+          data-i18n="stopCamera">
+          Arrêter la caméra
+        </button>
+      </div>
 
-<!-- QR DU MAGASIN -->
+      <div class="social-row">
 
-<div class="card">
+        <label>Instagram</label>
+        <input id="instagram" type="text" placeholder="Instagram">
 
-  <h2>QR du magasin</h2>
+        <label>TikTok</label>
+        <input id="tiktok" type="text" placeholder="TikTok">
 
-  <div id="qrcode"></div>
+        <label>Facebook</label>
+        <input id="facebook" type="text" placeholder="Facebook">
 
-  <button
-    class="success"
-    onclick="createQR()"
-  >
-    🔄 Générer le QR
-  </button>
+      </div>
 
-  <button
-    onclick="downloadQR()"
-  >
-    ⬇️ Télécharger le QR
-  </button>
-
-</div>
-
-<div class="nav-buttons">
-
-  <button
-    class="secondary"
-    onclick="nextPage(1)"
-  >
-    ← Back
-  </button>
-    <div class="nav-buttons">
-
-      <button
-        class="secondary"
-        onclick="nextPage(1)"
-      >
-       <!-- QR DU MAGASIN -->
-
-<div class="card">
-
-  <h2>QR du magasin</h2>
-
-  <div id="qrcode"></div>
-
-  <button
-    class="success"
-    onclick="createQR()"
-  >
-    🔄 Générer le QR
-  </button>
-
-  <button
-    onclick="downloadQR()"
-  >
-    ⬇️ Télécharger le QR
-  </button>
-
-</div> ← Back
-      </button>
-
-      <button
-        class="success"
-        onclick="saveProduct()"
-      >
-        Enregistrer le produit
-      </button>
+      <div class="next-area">
+        <button class="primary" onclick="goToPage2()" data-i18n="next">
+          Suivant
+        </button>
+      </div>
 
     </div>
-
   </section>
 
 
-  
+  <!-- PAGE 2 -->
+  <section id="page2" class="page">
+    <div class="card qr-card">
 
-  <!-- =========================
-       PAGE 4 - CUSTOMER
-  ========================== -->
-
-  <section id="page4" class="page">
-
-    <div class="card">
-
-      <h2 id="customerStoreName">
-        Shop Pro
+      <h2 class="page-title" data-i18n="yourQR">
+        Votre QR Code
       </h2>
 
-      <p id="customerPhone"></p>
+      <p class="subtitle" data-i18n="qrSubtitle">
+        Utilisez ce QR Code pour votre magasin
+      </p>
 
-      <p id="customerInstagram"></p>
+      <div class="store-preview-name" id="qrStoreName"></div>
 
-      <p id="customerTikTok"></p>
+      <div id="qrcode"></div>
+
+      <button class="primary" onclick="downloadQR()" data-i18n="downloadQR">
+        Télécharger le QR
+      </button>
+
+      <div class="next-area">
+        <button class="secondary" onclick="showPage(1)" data-i18n="back">
+          Retour
+        </button>
+
+        <button class="primary" onclick="goToPage3()" data-i18n="next">
+          Suivant
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- PAGE 3 -->
+  <section id="page3" class="page">
+    <div class="card">
+
+      <h2 class="page-title" id="productTitle" data-i18n="newProduct">
+        Nouveau produit
+      </h2>
+
+      <div id="successMessage" class="success-message"></div>
+
+      <label data-i18n="productName">Nom du produit</label>
+      <input id="productName" type="text" placeholder="Nom du produit">
+
+      <label data-i18n="price">Prix</label>
+      <input id="productPrice" type="number" min="0" step="0.01" placeholder="Prix">
+
+      <label data-i18n="barcode">Code-barres</label>
+
+      <div class="scan-area">
+
+        <input
+          id="productBarcode"
+          type="text"
+          inputmode="numeric"
+          placeholder="Code-barres">
+
+        <video id="barcodeVideo" autoplay playsinline></video>
+
+        <div class="camera-buttons">
+          <button class="secondary" onclick="startBarcodeScanner()" data-i18n="scan">
+            📷 Scanner
+          </button>
+
+          <button class="secondary" onclick="stopBarcodeScanner()" data-i18n="stop">
+            Arrêter
+          </button>
+        </div>
+
+        <div class="small-note" id="barcodeNote"></div>
+      </div>
+
+      <label data-i18n="productPhoto">Photo du produit</label>
+
+      <div class="camera-box">
+
+        <video id="productVideo" autoplay playsinline></video>
+
+        <img id="productPreview" class="preview">
+
+        <div class="camera-buttons">
+
+          <button class="secondary" onclick="startProductCamera()" data-i18n="camera">
+            📷 Caméra
+          </button>
+
+          <button class="secondary" onclick="captureProductPhoto()" data-i18n="capture">
+            Capturer
+          </button>
+
+        </div>
+
+        <button
+          class="secondary"
+          style="width:100%;margin-top:8px;"
+          onclick="stopProductCamera()"
+          data-i18n="stopCamera">
+          Arrêter la caméra
+        </button>
+
+      </div>
+
+      <div class="next-area">
+
+        <button class="secondary" onclick="showPage(2)" data-i18n="back">
+          Retour
+        </button>
+
+        <button class="primary" id="saveProductButton" onclick="saveProduct()" data-i18n="save">
+          Sauvegarder
+        </button>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- SETTINGS -->
+  <div id="settingsOverlay" class="settings-overlay">
+
+    <div class="settings-panel">
+
+      <div class="settings-header">
+
+        <h2 data-i18n="settings">Paramètres</h2>
+
+        <button class="close-settings" onclick="closeSettings()">✕</button>
+
+      </div>
+
+
+      <button class="setting-item" onclick="toggleSection('languageSection')" data-i18n="language">
+        🌐 Langue
+      </button>
+
+      <div id="languageSection" class="settings-section">
+
+        <div class="language-buttons">
+
+          <button class="secondary" onclick="setLanguage('fr')">
+            Français
+          </button>
+
+          <button class="secondary" onclick="setLanguage('ar')">
+            العربية
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <button class="setting-item" onclick="toggleSection('profileSection')" data-i18n="profile">
+        👤 Profil
+      </button>
+
+      <div id="profileSection" class="settings-section">
+
+        <label data-i18n="storeName">Nom du magasin</label>
+        <input id="editStoreName" type="text">
+
+        <label data-i18n="phone">Téléphone</label>
+        <input id="editStorePhone" type="tel">
+
+        <label>Instagram</label>
+        <input id="editInstagram" type="text">
+
+        <label>TikTok</label>
+        <input id="editTiktok" type="text">
+
+        <label>Facebook</label>
+        <input id="editFacebook" type="text">
+
+        <button
+          class="primary"
+          style="margin-top:15px;"
+          onclick="saveProfile()"
+          data-i18n="saveChanges">
+          Enregistrer les modifications
+        </button>
+
+      </div>
+
+
+      <button class="setting-item" onclick="toggleSection('productsSection');renderProducts()" data-i18n="products">
+        📦 Produits
+      </button>
+
+      <div id="productsSection" class="settings-section">
+
+        <div id="productList" class="product-list"></div>
+
+      </div>
+
+
+      <button class="setting-item" onclick="logout()" data-i18n="logout">
+        🚪 Déconnecter
+      </button>
 
     </div>
 
-    <div id="customerProducts"></div>
-
-  </section>
-
-</div>
-
-
-<!-- QR CODE LIBRARY -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  </div>
 
 
 <script>
 
   /* =========================
-     GLOBAL VARIABLES
-  ========================== */
+     LANGUAGE
+  ========================= */
 
-  let currentPage = 1;
+  const translations = {
 
-  let storeStream = null;
-  let productStream = null;
-  let barcodeStream = null;
+    fr: {
+      storeInfo: "Informations du magasin",
+      storeSubtitle: "Créez votre profil de magasin",
+      storeName: "Nom du magasin",
+      phone: "Téléphone",
+      storePhoto: "Photo du magasin",
+      camera: "📷 Caméra",
+      capture: "Capturer",
+      stopCamera: "Arrêter la caméra",
+      next: "Suivant",
+      back: "Retour",
+      yourQR: "Votre QR Code",
+      qrSubtitle: "Utilisez ce QR Code pour votre magasin",
+      downloadQR: "Télécharger le QR",
+      newProduct: "Nouveau produit",
+      editProduct: "Modifier le produit",
+      productName: "Nom du produit",
+      price: "Prix",
+      barcode: "Code-barres",
+      productPhoto: "Photo du produit",
+      scan: "📷 Scanner",
+      stop: "Arrêter",
+      save: "Sauvegarder",
+      update: "Modifier",
+      settings: "Paramètres",
+      language: "🌐 Langue",
+      profile: "👤 Profil",
+      products: "📦 Produits",
+      logout: "🚪 Déconnecter",
+      saveChanges: "Enregistrer les modifications",
+      noProducts: "Aucun produit enregistré.",
+      saved: "Produit enregistré. Vous pouvez ajouter un nouveau produit.",
+      updated: "Produit modifié avec succès.",
+      cameraUnsupported: "La caméra n'est pas disponible.",
+      barcodeUnsupported: "Le scan automatique n'est pas disponible sur ce navigateur. Entrez le code manuellement."
+    },
 
-  let storePhotoData = "";
-  let productPhotoData = "";
+    ar: {
+      storeInfo: "معلومات المتجر",
+      storeSubtitle: "أنشئ ملف متجرك",
+      storeName: "اسم المتجر",
+      phone: "الهاتف",
+      storePhoto: "صورة المتجر",
+      camera: "📷 الكاميرا",
+      capture: "التقاط",
+      stopCamera: "إيقاف الكاميرا",
+      next: "التالي",
+      back: "رجوع",
+      yourQR: "رمز QR الخاص بك",
+      qrSubtitle: "استعمل هذا الرمز لمتجرك",
+      downloadQR: "تحميل QR",
+      newProduct: "منتج جديد",
+      editProduct: "تعديل المنتج",
+      productName: "اسم المنتج",
+      price: "السعر",
+      barcode: "الباركود",
+      productPhoto: "صورة المنتج",
+      scan: "📷 مسح",
+      stop: "إيقاف",
+      save: "حفظ",
+      update: "تعديل",
+      settings: "الإعدادات",
+      language: "🌐 اللغة",
+      profile: "👤 الملف الشخصي",
+      products: "📦 المنتجات",
+      logout: "🚪 تسجيل الخروج",
+      saveChanges: "حفظ التعديلات",
+      noProducts: "لا توجد منتجات مسجلة.",
+      saved: "تم حفظ المنتج. يمكنك إضافة منتج جديد.",
+      updated: "تم تعديل المنتج بنجاح.",
+      cameraUnsupported: "الكاميرا غير متاحة.",
+      barcodeUnsupported: "المسح التلقائي غير متاح في هذا المتصفح. أدخل الباركود يدوياً."
+    }
 
-  let products = [];
+  };
+
+  let currentLanguage = localStorage.getItem("shopProLanguage") || "fr";
+
+  function applyLanguage() {
+
+    document.documentElement.lang = currentLanguage;
+    document.documentElement.dir =
+      currentLanguage === "ar" ? "rtl" : "ltr";
+
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+
+      const key = el.getAttribute("data-i18n");
+
+      if (translations[currentLanguage][key]) {
+        el.textContent = translations[currentLanguage][key];
+      }
+
+    });
+
+    updateProductButton();
+
+  }
+
+
+  function setLanguage(lang) {
+
+    currentLanguage = lang;
+
+    localStorage.setItem(
+      "shopProLanguage",
+      lang
+    );
+
+    applyLanguage();
+
+    renderProducts();
+
+  }
 
 
   /* =========================
-     PAGE NAVIGATION
-  ========================== */
+     DATA
+  ========================= */
 
-  function nextPage(pageNumber) {
+  let store = JSON.parse(
+    localStorage.getItem("shopProStore") || "{}"
+  );
+
+  let products = JSON.parse(
+    localStorage.getItem("shopProProducts") || "[]"
+  );
+
+  let editingProductIndex = -1;
+
+
+  /* =========================
+     PAGES
+  ========================= */
+
+  function showPage(number) {
+
+    document.querySelectorAll(".page").forEach(page => {
+      page.classList.remove("active");
+    });
 
     document
-      .querySelectorAll(".page")
-      .forEach(function(page) {
-        page.classList.remove("active");
-      });
+      .getElementById("page" + number)
+      .classList.add("active");
 
-    const target =
-      document.getElementById(
-        "page" + pageNumber
-      );
+    stopAllCameras();
 
-    if (target) {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
 
-      target.classList.add("active");
+    if (number === 2) {
+      createQR();
+    }
 
-      currentPage = pageNumber;
+  }
 
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
+
+  /* =========================
+     STORE
+  ========================= */
+
+  function saveStoreFromPage() {
+
+    store = {
+
+      name: document.getElementById("storeName").value.trim(),
+
+      phone: document.getElementById("storePhone").value.trim(),
+
+      instagram: document.getElementById("instagram").value.trim(),
+
+      tiktok: document.getElementById("tiktok").value.trim(),
+
+      facebook: document.getElementById("facebook").value.trim(),
+
+      photo:
+        document.getElementById("storePreview").src || ""
+
+    };
+
+    localStorage.setItem(
+      "shopProStore",
+      JSON.stringify(store)
+    );
+
+  }
+
+
+  function loadStore() {
+
+    document.getElementById("storeName").value =
+      store.name || "";
+
+    document.getElementById("storePhone").value =
+      store.phone || "";
+
+    document.getElementById("instagram").value =
+      store.instagram || "";
+
+    document.getElementById("tiktok").value =
+      store.tiktok || "";
+
+    document.getElementById("facebook").value =
+      store.facebook || "";
+
+    if (store.photo) {
+
+      const preview =
+        document.getElementById("storePreview");
+
+      preview.src = store.photo;
+      preview.style.display = "block";
 
     }
+
+  }
+
+
+  function goToPage2() {
+
+    const name =
+      document.getElementById("storeName").value.trim();
+
+    if (!name) {
+
+      alert(
+        currentLanguage === "ar"
+          ? "أدخل اسم المتجر أولاً."
+          : "Entrez d'abord le nom du magasin."
+      );
+
+      return;
+    }
+
+    saveStoreFromPage();
+
+    createQR();
+
+    showPage(2);
+
   }
 
 
   /* =========================
      STORE CAMERA
-  ========================== */
+  ========================= */
+
+  let storeStream = null;
 
   async function startStoreCamera() {
 
     try {
 
-      stopStoreCamera();
-
       storeStream =
         await navigator.mediaDevices.getUserMedia({
           video: {
-            facingMode: {
-              ideal: "environment"
-            }
+            facingMode: "environment"
           },
           audio: false
         });
 
       const video =
-        document.getElementById(
-          "storeVideo"
-        );
+        document.getElementById("storeVideo");
 
       video.srcObject = storeStream;
-
       video.style.display = "block";
-
-      document
-        .getElementById("captureStore")
-        .classList.remove("hidden");
-
-      document
-        .getElementById("stopStoreCamera")
-        .classList.remove("hidden");
-
-      await video.play();
 
     } catch (error) {
 
-      console.error(error);
-
       alert(
-        "Impossible d'ouvrir la caméra. Autorisez l'accès à la caméra."
+        translations[currentLanguage].cameraUnsupported
       );
 
     }
+
   }
 
 
   function captureStorePhoto() {
 
     const video =
-      document.getElementById(
-        "storeVideo"
+      document.getElementById("storeVideo");
+
+    if (!storeStream || video.readyState < 2) {
+
+      alert(
+        currentLanguage === "ar"
+          ? "شغّل الكاميرا أولاً."
+          : "Démarrez d'abord la caméra."
       );
+
+      return;
+
+    }
 
     const canvas =
       document.createElement("canvas");
 
-    canvas.width =
-      video.videoWidth;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
 
-    canvas.height =
-      video.videoHeight;
+    const ctx = canvas.getContext("2d");
 
-    const context =
-      canvas.getContext("2d");
-
-    context.drawImage(
+    ctx.drawImage(
       video,
       0,
       0,
@@ -594,28 +962,17 @@
       canvas.height
     );
 
-    storePhotoData =
-      canvas.toDataURL(
-        "image/jpeg",
-        0.85
-      );
-
     const image =
-      document.getElementById(
-        "storePhotoPreview"
-      );
+      canvas.toDataURL("image/jpeg", 0.85);
 
-    image.src =
-      storePhotoData;
+    const preview =
+      document.getElementById("storePreview");
 
-    image.style.display =
-      "block";
-
-    document
-      .getElementById("removeStorePhoto")
-      .classList.remove("hidden");
+    preview.src = image;
+    preview.style.display = "block";
 
     stopStoreCamera();
+
   }
 
 
@@ -623,132 +980,228 @@
 
     if (storeStream) {
 
-      storeStream
-        .getTracks()
-        .forEach(function(track) {
-          track.stop();
-        });
+      storeStream.getTracks().forEach(track => {
+        track.stop();
+      });
 
       storeStream = null;
+
     }
 
     const video =
-      document.getElementById(
-        "storeVideo"
-      );
+      document.getElementById("storeVideo");
 
-    if (video) {
+    video.srcObject = null;
+    video.style.display = "none";
 
-      video.pause();
-
-      video.srcObject = null;
-
-      video.style.display = "none";
-    }
-
-    document
-      .getElementById("captureStore")
-      .classList.add("hidden");
-
-    document
-      .getElementById("stopStoreCamera")
-      .classList.add("hidden");
   }
 
 
-  function removeStorePhoto() {
+  /* =========================
+     QR
+  ========================= */
 
-    storePhotoData = "";
+  function createQR() {
 
-    const image =
-      document.getElementById(
-        "storePhotoPreview"
-      );
+    const container =
+      document.getElementById("qrcode");
 
-    image.src = "";
+    container.innerHTML = "";
 
-    image.style.display =
-      "none";
+    const name =
+      store.name || "Shop Pro";
 
-    document
-      .getElementById("removeStorePhoto")
-      .classList.add("hidden");
+    document.getElementById(
+      "qrStoreName"
+    ).textContent = name;
+
+    const baseUrl =
+      window.location.href.split("#")[0];
+
+    const qrData =
+      baseUrl +
+      "?shop=" +
+      encodeURIComponent(name);
+
+    new QRCode(container, {
+
+      text: qrData,
+
+      width: 250,
+
+      height: 250,
+
+      correctLevel: QRCode.CorrectLevel.H
+
+    });
+
+  }
+
+
+  function downloadQR() {
+
+    const canvas =
+      document.querySelector("#qrcode canvas");
+
+    const img =
+      document.querySelector("#qrcode img");
+
+    let dataUrl = null;
+
+    if (canvas) {
+      dataUrl = canvas.toDataURL("image/png");
+    }
+
+    else if (img) {
+      dataUrl = img.src;
+    }
+
+    if (!dataUrl) return;
+
+    const link =
+      document.createElement("a");
+
+    link.href = dataUrl;
+
+    link.download =
+      "Shop-Pro-QR.png";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+  }
+
+
+  /* =========================
+     PRODUCT
+  ========================= */
+
+  let productPhotoData = "";
+
+  function goToPage3() {
+
+    clearProductForm();
+
+    showPage(3);
+
+  }
+
+
+  function clearProductForm() {
+
+    editingProductIndex = -1;
+
+    document.getElementById("productName").value = "";
+
+    document.getElementById("productPrice").value = "";
+
+    document.getElementById("productBarcode").value = "";
+
+    productPhotoData = "";
+
+    const preview =
+      document.getElementById("productPreview");
+
+    preview.src = "";
+    preview.style.display = "none";
+
+    document.getElementById(
+      "productTitle"
+    ).textContent =
+      translations[currentLanguage].newProduct;
+
+    updateProductButton();
+
+  }
+
+
+  function updateProductButton() {
+
+    const button =
+      document.getElementById("saveProductButton");
+
+    if (!button) return;
+
+    if (editingProductIndex >= 0) {
+
+      button.textContent =
+        translations[currentLanguage].update;
+
+    } else {
+
+      button.textContent =
+        translations[currentLanguage].save;
+
+    }
+
   }
 
 
   /* =========================
      PRODUCT CAMERA
-  ========================== */
+  ========================= */
+
+  let productStream = null;
 
   async function startProductCamera() {
 
     try {
 
-      stopProductCamera();
-
       productStream =
         await navigator.mediaDevices.getUserMedia({
           video: {
-            facingMode: {
-              ideal: "environment"
-            }
+            facingMode: "environment"
           },
           audio: false
         });
 
       const video =
-        document.getElementById(
-          "productVideo"
-        );
+        document.getElementById("productVideo");
 
-      video.srcObject =
-        productStream;
-
-      video.style.display =
-        "block";
-
-      document
-        .getElementById("captureProduct")
-        .classList.remove("hidden");
-
-      document
-        .getElementById("stopProductCamera")
-        .classList.remove("hidden");
-
-      await video.play();
+      video.srcObject = productStream;
+      video.style.display = "block";
 
     } catch (error) {
 
-      console.error(error);
-
       alert(
-        "Impossible d'ouvrir la caméra."
+        translations[currentLanguage].cameraUnsupported
       );
 
     }
+
   }
 
 
   function captureProductPhoto() {
 
     const video =
-      document.getElementById(
-        "productVideo"
+      document.getElementById("productVideo");
+
+    if (!productStream || video.readyState < 2) {
+
+      alert(
+        currentLanguage === "ar"
+          ? "شغّل الكاميرا أولاً."
+          : "Démarrez d'abord la caméra."
       );
+
+      return;
+
+    }
 
     const canvas =
       document.createElement("canvas");
 
-    canvas.width =
-      video.videoWidth;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
 
-    canvas.height =
-      video.videoHeight;
-
-    const context =
+    const ctx =
       canvas.getContext("2d");
 
-    context.drawImage(
+    ctx.drawImage(
       video,
       0,
       0,
@@ -762,22 +1215,14 @@
         0.85
       );
 
-    const image =
-      document.getElementById(
-        "productPhotoPreview"
-      );
+    const preview =
+      document.getElementById("productPreview");
 
-    image.src =
-      productPhotoData;
-
-    image.style.display =
-      "block";
-
-    document
-      .getElementById("removeProductPhoto")
-      .classList.remove("hidden");
+    preview.src = productPhotoData;
+    preview.style.display = "block";
 
     stopProductCamera();
+
   }
 
 
@@ -785,276 +1230,179 @@
 
     if (productStream) {
 
-      productStream
-        .getTracks()
-        .forEach(function(track) {
-          track.stop();
-        });
+      productStream.getTracks().forEach(track => {
+        track.stop();
+      });
 
       productStream = null;
+
     }
 
     const video =
-      document.getElementById(
-        "productVideo"
-      );
+      document.getElementById("productVideo");
 
-    if (video) {
+    video.srcObject = null;
+    video.style.display = "none";
 
-      video.pause();
-
-      video.srcObject = null;
-
-      video.style.display = "none";
-    }
-
-    document
-      .getElementById("captureProduct")
-      .classList.add("hidden");
-
-    document
-      .getElementById("stopProductCamera")
-      .classList.add("hidden");
-  }
-
-
-  function removeProductPhoto() {
-
-    productPhotoData = "";
-
-    const image =
-      document.getElementById(
-        "productPhotoPreview"
-      );
-
-    image.src = "";
-
-    image.style.display =
-      "none";
-
-    document
-      .getElementById("removeProductPhoto")
-      .classList.add("hidden");
   }
 
 
   /* =========================
-     BARCODE CAMERA
-  ========================== */
+     BARCODE SCANNER
+  ========================= */
 
-  async function startBarcodeCamera() {
+  let barcodeStream = null;
+  let barcodeDetector = null;
+  let barcodeScanning = false;
+
+  async function startBarcodeScanner() {
+
+    const video =
+      document.getElementById("barcodeVideo");
+
+    const note =
+      document.getElementById("barcodeNote");
 
     try {
 
-      stopBarcodeCamera();
-
       barcodeStream =
         await navigator.mediaDevices.getUserMedia({
+
           video: {
             facingMode: {
               ideal: "environment"
             }
           },
+
           audio: false
+
         });
 
-      const video =
-        document.getElementById(
-          "barcodeVideo"
-        );
+      video.srcObject = barcodeStream;
+      video.style.display = "block";
 
-      video.srcObject =
-        barcodeStream;
+      if ("BarcodeDetector" in window) {
 
-      video.style.display =
-        "block";
+        try {
 
-      document
-        .getElementById("stopBarcode")
-        .classList.remove("hidden");
+          barcodeDetector =
+            new BarcodeDetector({
 
-      await video.play();
+              formats: [
+                "ean_13",
+                "ean_8",
+                "upc_a",
+                "upc_e",
+                "code_128",
+                "code_39",
+                "itf",
+                "codabar"
+              ]
 
-      startBarcodeDetection(video);
+            });
+
+        } catch (e) {
+
+          barcodeDetector =
+            new BarcodeDetector();
+
+        }
+
+        barcodeScanning = true;
+
+        scanBarcode();
+
+      } else {
+
+        note.textContent =
+          translations[currentLanguage]
+            .barcodeUnsupported;
+
+      }
 
     } catch (error) {
 
-      console.error(error);
-
       alert(
-        "Impossible d'ouvrir la caméra. Autorisez l'accès à la caméra."
+        translations[currentLanguage]
+          .cameraUnsupported
       );
+
     }
+
   }
 
 
-  async function startBarcodeDetection(video) {
+  async function scanBarcode() {
 
-    if (
-      !("BarcodeDetector" in window)
-    ) {
+    if (!barcodeScanning ||
+        !barcodeDetector ||
+        !barcodeStream) {
 
       return;
+
     }
 
-    let detector;
+    const video =
+      document.getElementById("barcodeVideo");
 
     try {
 
-      detector =
-        new BarcodeDetector({
-          formats: [
-            "ean_13",
-            "ean_8",
-            "upc_a",
-            "upc_e",
-            "code_128",
-            "code_39",
-            "itf"
-          ]
-        });
+      if (video.readyState >= 2) {
 
-    } catch (error) {
+        const results =
+          await barcodeDetector.detect(video);
 
-      console.log(error);
+        if (results.length > 0) {
 
-      return;
-    }
+          document.getElementById(
+            "productBarcode"
+          ).value = results[0].rawValue;
 
-
-    async function detect() {
-
-      if (
-        !barcodeStream ||
-        video.readyState < 2
-      ) {
-
-        if (barcodeStream) {
-          requestAnimationFrame(detect);
-        }
-
-        return;
-      }
-
-      try {
-
-        const codes =
-          await detector.detect(video);
-
-        if (
-          codes &&
-          codes.length > 0
-        ) {
-
-          document
-            .getElementById(
-              "productBarcode"
-            )
-            .value =
-            codes[0].rawValue;
-
-          stopBarcodeCamera();
+          stopBarcodeScanner();
 
           return;
+
         }
 
-      } catch (error) {
-
-        console.log(
-          "Barcode detection:",
-          error
-        );
       }
 
-      if (barcodeStream) {
-        requestAnimationFrame(detect);
-      }
+    } catch (error) {
+      // Continue scanning
     }
 
-    detect();
+    requestAnimationFrame(
+      scanBarcode
+    );
+
   }
 
 
-  function stopBarcodeCamera() {
+  function stopBarcodeScanner() {
+
+    barcodeScanning = false;
 
     if (barcodeStream) {
 
       barcodeStream
         .getTracks()
-        .forEach(function(track) {
-          track.stop();
-        });
+        .forEach(track => track.stop());
 
       barcodeStream = null;
+
     }
 
     const video =
-      document.getElementById(
-        "barcodeVideo"
-      );
+      document.getElementById("barcodeVideo");
 
-    if (video) {
+    video.srcObject = null;
+    video.style.display = "none";
 
-      video.pause();
-
-      video.srcObject = null;
-
-      video.style.display = "none";
-    }
-
-    document
-      .getElementById("stopBarcode")
-      .classList.add("hidden");
   }
 
 
   /* =========================
-     STORE SAVE
-  ========================== */
-
-  function saveStore() {
-
-    const store = {
-
-      name:
-        document.getElementById(
-          "storeName"
-        ).value,
-
-      phone:
-        document.getElementById(
-          "storePhone"
-        ).value,
-
-      instagram:
-        document.getElementById(
-          "instagram"
-        ).value,
-
-      tiktok:
-        document.getElementById(
-          "tiktok"
-        ).value,
-
-      photo:
-        storePhotoData
-
-    };
-
-    localStorage.setItem(
-      "shopProStore",
-      JSON.stringify(store)
-    );
-
-    alert(
-      "Informations enregistrées."
-    );
-  }
-
-
-  /* =========================
-     PRODUCT SAVE
-  ========================== */
+     SAVE PRODUCT
+  ========================= */
 
   function saveProduct() {
 
@@ -1066,7 +1414,7 @@
     const price =
       document.getElementById(
         "productPrice"
-      ).value;
+      ).value.trim();
 
     const barcode =
       document.getElementById(
@@ -1076,19 +1424,25 @@
     if (!name) {
 
       alert(
-        "Entrez le nom du produit."
+        currentLanguage === "ar"
+          ? "أدخل اسم المنتج."
+          : "Entrez le nom du produit."
       );
 
       return;
+
     }
 
     if (!price) {
 
       alert(
-        "Entrez le prix."
+        currentLanguage === "ar"
+          ? "أدخل السعر."
+          : "Entrez le prix."
       );
 
       return;
+
     }
 
     const product = {
@@ -1099,223 +1453,396 @@
 
       barcode: barcode,
 
-      photo: productPhotoData
+      photo: productPhotoData || ""
+
     };
 
-    products.push(product);
 
-    localStorage.setItem(
-      "shopProProducts",
-      JSON.stringify(products)
-    );
+    if (editingProductIndex >= 0) {
 
-    alert(
-      "Produit enregistré."
-    );
+      products[editingProductIndex] =
+        product;
 
-    document
-      .getElementById(
-        "productName"
-      ).value = "";
+      localStorage.setItem(
+        "shopProProducts",
+        JSON.stringify(products)
+      );
 
-    document
-      .getElementById(
-        "productPrice"
-      ).value = "";
+      showSuccess(
+        translations[currentLanguage].updated
+      );
 
-    document
-      .getElementById(
-        "productBarcode"
-      ).value = "";
+      clearProductForm();
 
-    removeProductPhoto();
+    } else {
 
-    nextPage(3);
+      products.push(product);
 
-    createQR();
+      localStorage.setItem(
+        "shopProProducts",
+        JSON.stringify(products)
+      );
+
+      showSuccess(
+        translations[currentLanguage].saved
+      );
+
+      clearProductForm();
+
+    }
+
   }
 
 
-  /* =========================
-     QR CODE
-  ========================== */
-
-  function createQR() {
+  function showSuccess(message) {
 
     const box =
       document.getElementById(
-        "qrcode"
+        "successMessage"
       );
 
-    if (!box) {
-      return;
-    }
+    box.textContent = message;
 
-    box.innerHTML = "";
+    box.style.display = "block";
 
-    if (
-      typeof QRCode === "undefined"
-    ) {
+    setTimeout(() => {
 
-      box.innerHTML =
-        "<p>QR library unavailable.</p>";
+      box.style.display = "none";
 
-      return;
-    }
+    }, 3000);
 
-    const url =
-      window.location.origin +
-      window.location.pathname;
-
-    new QRCode(
-      box,
-      {
-        text: url,
-        width: 220,
-        height: 220
-      }
-    );
   }
-function downloadQR() {
 
-  const qrCanvas =
-    document.querySelector(
-      "#qrcode canvas"
+
+  /* =========================
+     SETTINGS
+  ========================= */
+
+  function openSettings() {
+
+    document.getElementById(
+      "settingsOverlay"
+    ).style.display = "block";
+
+    loadProfileEditor();
+
+  }
+
+
+  function closeSettings() {
+
+    document.getElementById(
+      "settingsOverlay"
+    ).style.display = "none";
+
+  }
+
+
+  function toggleSection(id) {
+
+    const section =
+      document.getElementById(id);
+
+    const wasActive =
+      section.classList.contains("active");
+
+    document
+      .querySelectorAll(".settings-section")
+      .forEach(s => {
+        s.classList.remove("active");
+      });
+
+    if (!wasActive) {
+      section.classList.add("active");
+    }
+
+  }
+
+
+  /* =========================
+     PROFILE EDIT
+  ========================= */
+
+  function loadProfileEditor() {
+
+    document.getElementById(
+      "editStoreName"
+    ).value = store.name || "";
+
+    document.getElementById(
+      "editStorePhone"
+    ).value = store.phone || "";
+
+    document.getElementById(
+      "editInstagram"
+    ).value = store.instagram || "";
+
+    document.getElementById(
+      "editTiktok"
+    ).value = store.tiktok || "";
+
+    document.getElementById(
+      "editFacebook"
+    ).value = store.facebook || "";
+
+  }
+
+
+  function saveProfile() {
+
+    store.name =
+      document.getElementById(
+        "editStoreName"
+      ).value.trim();
+
+    store.phone =
+      document.getElementById(
+        "editStorePhone"
+      ).value.trim();
+
+    store.instagram =
+      document.getElementById(
+        "editInstagram"
+      ).value.trim();
+
+    store.tiktok =
+      document.getElementById(
+        "editTiktok"
+      ).value.trim();
+
+    store.facebook =
+      document.getElementById(
+        "editFacebook"
+      ).value.trim();
+
+    localStorage.setItem(
+      "shopProStore",
+      JSON.stringify(store)
     );
 
-  if (!qrCanvas) {
+    loadStore();
+
+    createQR();
 
     alert(
-      "Générez d'abord le QR code."
+      currentLanguage === "ar"
+        ? "تم حفظ معلومات المتجر."
+        : "Les informations du magasin ont été enregistrées."
     );
 
-    return;
-  }
-
-  const link =
-    document.createElement("a");
-
-  link.download =
-    "Shop-Pro-QR.png";
-
-  link.href =
-    qrCanvas.toDataURL(
-      "image/png"
-    );
-
-  link.click();
-}
-
-  /* =========================
-     LOAD DATA
-  ========================== */
-
-  function loadData() {
-
-    const savedStore =
-      localStorage.getItem(
-        "shopProStore"
-      );
-
-    if (savedStore) {
-
-      try {
-
-        const store =
-          JSON.parse(savedStore);
-
-        document
-          .getElementById(
-            "storeName"
-          ).value =
-          store.name || "";
-
-        document
-          .getElementById(
-            "storePhone"
-          ).value =
-          store.phone || "";
-
-        document
-          .getElementById(
-            "instagram"
-          ).value =
-          store.instagram || "";
-
-        document
-          .getElementById(
-            "tiktok"
-          ).value =
-          store.tiktok || "";
-
-        if (store.photo) {
-
-          storePhotoData =
-            store.photo;
-
-          const image =
-            document.getElementById(
-              "storePhotoPreview"
-            );
-
-          image.src =
-            store.photo;
-
-          image.style.display =
-            "block";
-
-          document
-            .getElementById(
-              "removeStorePhoto"
-            )
-            .classList.remove(
-              "hidden"
-            );
-        }
-
-      } catch (error) {
-
-        console.log(error);
-      }
-    }
-
-
-    const savedProducts =
-      localStorage.getItem(
-        "shopProProducts"
-      );
-
-    if (savedProducts) {
-
-      try {
-
-        products =
-          JSON.parse(
-            savedProducts
-          );
-
-      } catch (error) {
-
-        products = [];
-      }
-    }
   }
 
 
   /* =========================
-     START
-  ========================== */
+     PRODUCTS LIST
+  ========================= */
 
-  document.addEventListener(
-    "DOMContentLoaded",
-    function() {
+  function renderProducts() {
 
-      loadData();
+    const list =
+      document.getElementById(
+        "productList"
+      );
 
-      nextPage(1);
+    if (!products.length) {
+
+      list.innerHTML =
+        `<div class="empty">
+          ${translations[currentLanguage].noProducts}
+        </div>`;
+
+      return;
 
     }
-  );
+
+    const sorted =
+      products
+        .map((product, index) => ({
+          ...product,
+          originalIndex: index
+        }))
+        .sort((a, b) =>
+          a.name.localeCompare(
+            b.name,
+            currentLanguage === "ar"
+              ? "ar"
+              : "fr",
+            {
+              sensitivity: "base"
+            }
+          )
+        );
+
+    list.innerHTML = "";
+
+    sorted.forEach(product => {
+
+      const item =
+        document.createElement("div");
+
+      item.className =
+        "product-item";
+
+      const info =
+        document.createElement("div");
+
+      info.className =
+        "product-info";
+
+      const name =
+        document.createElement("div");
+
+      name.className =
+        "product-name";
+
+      name.textContent =
+        product.name;
+
+      const price =
+        document.createElement("div");
+
+      price.className =
+        "product-price";
+
+      price.textContent =
+        product.price;
+
+      info.appendChild(name);
+      info.appendChild(price);
+
+      const edit =
+        document.createElement("button");
+
+      edit.className =
+        "edit-product";
+
+      edit.textContent =
+        currentLanguage === "ar"
+          ? "تعديل"
+          : "Modifier";
+
+      edit.onclick = function() {
+
+        editProduct(
+          product.originalIndex
+        );
+
+      };
+
+      item.appendChild(info);
+      item.appendChild(edit);
+
+      list.appendChild(item);
+
+    });
+
+  }
+
+
+  function editProduct(index) {
+
+    const product =
+      products[index];
+
+    if (!product) return;
+
+    editingProductIndex =
+      index;
+
+    document.getElementById(
+      "productName"
+    ).value =
+      product.name || "";
+
+    document.getElementById(
+      "productPrice"
+    ).value =
+      product.price || "";
+
+    document.getElementById(
+      "productBarcode"
+    ).value =
+      product.barcode || "";
+
+    productPhotoData =
+      product.photo || "";
+
+    const preview =
+      document.getElementById(
+        "productPreview"
+      );
+
+    if (product.photo) {
+
+      preview.src =
+        product.photo;
+
+      preview.style.display =
+        "block";
+
+    } else {
+
+      preview.src = "";
+
+      preview.style.display =
+        "none";
+
+    }
+
+    document.getElementById(
+      "productTitle"
+    ).textContent =
+      translations[currentLanguage]
+        .editProduct;
+
+    updateProductButton();
+
+    closeSettings();
+
+    showPage(3);
+
+  }
+
+
+  /* =========================
+     LOGOUT
+  ========================= */
+
+  function logout() {
+
+    closeSettings();
+
+    showPage(1);
+
+    alert(
+      currentLanguage === "ar"
+        ? "تم تسجيل الخروج."
+        : "Vous êtes déconnecté."
+    );
+
+  }
+
+
+  /* =========================
+     STOP ALL CAMERAS
+  ========================= */
+
+  function stopAllCameras() {
+
+    stopStoreCamera();
+    stopProductCamera();
+    stopBarcodeScanner();
+
+  }
+
+
+  /* =========================
+     INITIALIZE
+  ========================= */
+
+  applyLanguage();
+
+  loadStore();
 
 </script>
 
