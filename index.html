@@ -1035,72 +1035,7 @@ function removeProductPhoto(){
   
 
 
-function stopBarcodeScanner(){
 
-  if(barcodeReader){
-
-    barcodeReader.reset();
-
-    barcodeReader = null;
-
-  }
-
-
-  const video =
-    document.getElementById(
-      "barcodeVideo"
-    );
-
-
-  video.pause();
-
-  video.srcObject =
-    null;
-
-  video.style.display =
-    "none";
-
-
-  document.getElementById(
-    "stopBarcode"
-  ).classList.add(
-    "hidden"
-  );
-}
-
-
-function removeBarcode(){
-
-  document.getElementById(
-    "productBarcode"
-  ).value = "";
-
-
-  document.getElementById(
-    "removeBarcode"
-  ).style.display =
-    "none";
-}
-
-
-/* =========================
-   PRICE
-========================= */
-
-document.addEventListener(
-  "input",
-  function(event){
-
-    if(event.target.id === "productPrice"){
-
-      document.getElementById(
-        "removePrice"
-      ).style.display =
-        event.target.value
-        ? "block"
-        : "none";
-
-    }
 
   }
 );
@@ -1952,7 +1887,173 @@ function loadStore(){
 
   createQR();
 }
+/* =========================
+   BARCODE SCANNER
+========================= */
 
+let barcodeStream = null;
+let barcodeScanning = false;
+
+async function startBarcodeScanner() {
+
+  const video =
+    document.getElementById("barcodeVideo");
+
+  const stopButton =
+    document.getElementById("stopBarcode");
+
+  if (!video) {
+    alert("Camera element not found");
+    return;
+  }
+
+  try {
+
+    // Stop any previous camera
+    stopBarcodeScanner();
+
+    // Open the rear camera
+    barcodeStream =
+      await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: {
+            ideal: "environment"
+          }
+        },
+        audio: false
+      });
+
+    // Connect camera to video
+    video.srcObject = barcodeStream;
+
+    video.style.display = "block";
+
+    stopButton.classList.remove("hidden");
+
+    await video.play();
+
+    barcodeScanning = true;
+
+    scanBarcode();
+
+  } catch (error) {
+
+    console.error("Barcode camera error:", error);
+
+    alert(
+      "Impossible d'ouvrir la caméra. Vérifiez l'autorisation de la caméra."
+    );
+  }
+}
+
+
+async function scanBarcode() {
+
+  if (!barcodeScanning) {
+    return;
+  }
+
+  const video =
+    document.getElementById("barcodeVideo");
+
+  // Check browser support
+  if ("BarcodeDetector" in window) {
+
+    try {
+
+      const detector =
+        new BarcodeDetector({
+          formats: [
+            "ean_13",
+            "ean_8",
+            "upc_a",
+            "upc_e",
+            "code_128",
+            "code_39",
+            "itf",
+            "codabar"
+          ]
+        });
+
+      const barcodes =
+        await detector.detect(video);
+
+      if (barcodes.length > 0) {
+
+        const code =
+          barcodes[0].rawValue;
+
+        document.getElementById(
+          "productBarcode"
+        ).value = code;
+
+        document.getElementById(
+          "removeBarcode"
+        ).style.display = "inline-block";
+
+        stopBarcodeScanner();
+
+        return;
+      }
+
+    } catch (error) {
+
+      console.log(
+        "Barcode detection:",
+        error
+      );
+    }
+  }
+
+  requestAnimationFrame(scanBarcode);
+}
+
+
+function stopBarcodeScanner() {
+
+  barcodeScanning = false;
+
+  if (barcodeStream) {
+
+    barcodeStream
+      .getTracks()
+      .forEach(track => track.stop());
+
+    barcodeStream = null;
+  }
+
+  const video =
+    document.getElementById("barcodeVideo");
+
+  if (video) {
+
+    video.pause();
+
+    video.srcObject = null;
+
+    video.style.display = "none";
+  }
+
+  const stopButton =
+    document.getElementById("stopBarcode");
+
+  if (stopButton) {
+
+    stopButton.classList.add("hidden");
+  }
+}
+
+
+function removeBarcode() {
+
+  document.getElementById(
+    "productBarcode"
+  ).value = "";
+
+  document.getElementById(
+    "removeBarcode"
+  ).style.display = "none";
+}
 
 /* =========================
    START
