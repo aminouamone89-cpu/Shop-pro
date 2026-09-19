@@ -1061,30 +1061,7 @@ video.autoplay = true;
     barcodeReader =
       new ZXingBrowser.BrowserMultiFormatReader();
 
-    barcodeReader.decodeFromVideoDevice(
-      undefined,
-      video,
-      function(result){
-
-        if(result){
-
-          const code = result.getText();
-
-          if(code){
-
-            document.getElementById(
-              "productBarcode"
-            ).value = code;
-
-            document.getElementById(
-              "removeBarcode"
-            ).style.display = "block";
-
-            stopBarcodeScanner();
-          }
-        }
-      }
-    );
+    
 
   }catch(error){
 
