@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Shop Pro - Customer</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f5f7;
+      color: #222;
+    }
+
+    .customer-header {
+      max-width: 450px;
+      margin: 0 auto;
+      padding: 18px 15px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .store-name {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .social-btn {
+      border: none;
+      background: #222;
+      color: white;
+      padding: 8px 11px;
+      border-radius: 8px;
+      font-size: 12px;
+    }
+
+    .customer-page {
+      max-width: 450px;
+      margin: 15px auto;
+      padding: 25px 20px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    .customer-page h3 {
+      margin-top: 5px;
+      font-size: 22px;
+    }
+
+    #barcodeInput {
+      width: 100%;
+      padding: 14px;
+      margin: 15px 0;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    .main-btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: #222;
+      color: white;
+      font-size: 16px;
+    }
+
+    #productImage {
+      width: 200px;
+      max-width: 100%;
+      border-radius: 12px;
+      margin-bottom: 15px;
+    }
+
+    #productName {
+      font-size: 22px;
+      margin: 10px 0;
+    }
+
+    #productPrice {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 15px 0 25px;
+    }
+
+    .social-panel {
+      display: none;
+      max-width: 450px;
+      margin: 0 auto 10px;
+      padding: 15px;
+      background: white;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .social-panel a {
+      display: block;
+      margin: 8px 0;
+      text-decoration: none;
+      color: #222;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- CUSTOMER HEADER -->
+  <div class="customer-header">
+
+    <h2 class="store-name" id="storeName">
+      اسم المحل
+    </h2>
+
+    <button class="social-btn" onclick="toggleSocial()">
+      التواصل الاجتماعي
+    </button>
+
+  </div>
+
+
+  <!-- SOCIAL MEDIA -->
+  <div class="social-panel" id="socialPanel">
+
+    <a href="#" id="facebookLink">Facebook</a>
+    <a href="#" id="instagramLink">Instagram</a>
+    <a href="#" id="tiktokLink">TikTok</a>
+    <a href="#" id="whatsappLink">WhatsApp</a>
+
+  </div>
+
+
+  <!-- PAGE 1 -->
+  <div class="customer-page" id="page1">
+
+    <h3>Scan Barcode</h3>
+
+    <input
+      type="text"
+      id="barcodeInput"
+      placeholder="ضع باركود المنتج"
+      inputmode="numeric"
+    >
+
+    <button class="main-btn" onclick="findProduct()">
+      📷 Scan Barcode
+    </button>
+
+  </div>
+
+
+  <!-- PAGE 2 -->
+  <div class="customer-page" id="page2" style="display:none;">
+
+    <img
+      id="productImage"
+      src=""
+      alt="Product"
+      style="display:none;"
+    >
+
+    <h2 id="productName"></h2>
+
+    <div id="productPrice"></div>
+
+    <button class="main-btn" onclick="nextProduct()">
+      منتج التالي
+    </button>
+
+  </div>
+
+
+  <script>
+
+    function toggleSocial() {
+
+      const panel = document.getElementById("socialPanel");
+
+      if (panel.style.display === "block") {
+        panel.style.display = "none";
+      } else {
+        panel.style.display = "block";
+      }
+
+    }
+
+
+    function findProduct() {
+
+      const barcode =
+        document.getElementById("barcodeInput").value.trim();
+
+      if (!barcode) {
+
+        alert("ضع باركود المنتج أولاً.");
+
+        return;
+      }
+
+      /*
+        لاحقًا سنربط هنا قاعدة بيانات
+        منتجات صاحب المحل.
+      */
+
+      alert(
+        "الباركود الذي تم إدخاله هو: " + barcode
+      );
+
+    }
+
+
+    function nextProduct() {
+
+      document.getElementById("page2").style.display = "none";
+
+      document.getElementById("page1").style.display = "block";
+
+      document.getElementById("barcodeInput").value = "";
+
+      document.getElementById("barcodeInput").focus();
+
+    }
+
+  </script>
+
+</body>
+</html>
