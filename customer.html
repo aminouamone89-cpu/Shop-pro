@@ -144,7 +144,7 @@
   <div class="customer-page" id="page1">
 
     <h3>Scan Barcode</h3>
-<div id="reader" style="display:none; width:100%; margin:15px 0;"></div>
+<div id="reader" style="display:; width:100%; margin:15px 0;"></div>
     <input
       type="text"
       id="barcodeInput"
@@ -214,7 +214,8 @@
     { facingMode: "environment" },
     {
       fps: 10,
-      qrbox: { width: 250, height: 150 }
+      qrbox: { width: 300, height: 180 },
+aspectRatio: 1.777778
     },
     (decodedText) => {
 
