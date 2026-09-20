@@ -110,6 +110,7 @@
       color: #222;
     }
   </style>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 </head>
 
 <body>
@@ -143,7 +144,7 @@
   <div class="customer-page" id="page1">
 
     <h3>Scan Barcode</h3>
-
+<div id="reader" style="display:none; width:100%; margin:15px 0;"></div>
     <input
       type="text"
       id="barcodeInput"
@@ -196,26 +197,45 @@
 
     function findProduct() {
 
-      const barcode =
-        document.getElementById("barcodeInput").value.trim();
+  const barcode =
+    document.getElementById("barcodeInput").value.trim();
 
-      if (!barcode) {
+  if (barcode) {
+    alert("الباركود الذي تم إدخاله هو: " + barcode);
+    return;
+  }
 
-        alert("ضع باركود المنتج أولاً.");
+  const reader = document.getElementById("reader");
+  reader.style.display = "block";
 
-        return;
-      }
+  const html5QrCode = new Html5Qrcode("reader");
 
-      /*
-        لاحقًا سنربط هنا قاعدة بيانات
-        منتجات صاحب المحل.
-      */
+  html5QrCode.start(
+    { facingMode: "environment" },
+    {
+      fps: 10,
+      qrbox: { width: 250, height: 150 }
+    },
+    (decodedText) => {
 
-      alert(
-        "الباركود الذي تم إدخاله هو: " + barcode
-      );
+      document.getElementById("barcodeInput").value = decodedText;
 
+      html5QrCode.stop().then(() => {
+        reader.style.display = "none";
+        findProduct();
+      });
+
+    },
+    (errorMessage) => {
+      // تجاهل أخطاء البحث العادية أثناء المسح
     }
+  ).catch((err) => {
+    alert("تعذر تشغيل الكاميرا. تأكد من السماح بالوصول إلى الكاميرا.");
+  });
+
+}
+
+      
 
 
     function nextProduct() {
